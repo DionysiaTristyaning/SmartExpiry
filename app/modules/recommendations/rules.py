@@ -72,12 +72,18 @@ def recommend(batch):
         unit = batch.get("unit") or "unit"
         good = batch.get("current_quantity", damaged) - damaged
         rest = f" Sisanya ({good} {unit}) masih bagus dan tetap boleh dijual." if good > 0 else ""
-        seen = (f"Cek fisik {_date_text(last['inspected_at'])}: kondisi produk "
-                f"{CONDITION_TEXT.get(last['product_condition'])}, kemasan "
-                f"{CONDITION_TEXT.get(last['packaging_condition'])}. ") if last else ""
+        recorded = batch.get("recorded_damaged_quantity", damaged)  # rusak yang dicatat lewat Cek Fisik
+        if last and recorded:
+            seen = (f"Cek fisik {_date_text(last['inspected_at'])}: kondisi produk "
+                    f"{CONDITION_TEXT.get(last['product_condition'])}, kemasan "
+                    f"{CONDITION_TEXT.get(last['packaging_condition'])}. ")
+            return _result("separate",
+                           f"{seen}Ada {damaged} {unit} yang rusak. Pisahkan yang rusak dari rak, lalu ajukan "
+                           f"pengembalian atau pemusnahan untuk barang rusak itu.{rest}")
+        # barang rusak yang dilaporkan langsung lewat form Ajukan dan masih ditahan
         return _result("separate",
-                       f"{seen}Ada {damaged} {unit} yang rusak. Pisahkan yang rusak dari rak, lalu ajukan "
-                       f"pengembalian atau pemusnahan untuk barang rusak itu.{rest}")
+                       f"Ada {damaged} {unit} yang dilaporkan rusak dan sedang diajukan. Pisahkan dari rak sampai "
+                       f"pengajuannya selesai; barang itu tidak bisa dijual.{rest}")
 
     if status == "critical":
         check = (f" Pemeriksaan terakhir {_date_text(last['inspected_at'])}: layak." if last

@@ -117,7 +117,10 @@
           expiry_date: SE.fmtDate(b.expiry_date) + ((b.expiry_history || []).length
             ? " (dikoreksi dari " + SE.fmtDate(b.expiry_history[b.expiry_history.length - 1].old_date) + ")" : ""),
           status: SE.STATUS_LABEL[b.expiry_status] + " (" + SE.daysText(b) + ")",
-          fitness: SE.FITNESS_LABEL[b.fitness] + (last ? " (pemeriksaan " + SE.fmtDateTime(last.inspected_at) + ")" : "") +
+          /* tanggal pemeriksaan hanya ditulis bila kerusakannya memang hasil Cek Fisik (bukan laporan yang sedang ditahan) */
+          fitness: SE.FITNESS_LABEL[b.fitness] +
+            (last && (b.recorded_damaged_quantity || !b.held_quantity) ? " (pemeriksaan " + SE.fmtDateTime(last.inspected_at) + ")" : "") +
+            (b.held_quantity ? " (" + b.held_quantity + " ditahan karena pengajuan barang rusak)" : "") +
             (b.check_due ? " · perlu dicek lagi" : ""),
           initial_quantity: b.initial_quantity + " " + b.unit + (b.rejected_quantity
             ? " (datang " + b.received_quantity + ", ditolak " + b.rejected_quantity + ": " + b.reject_reason + ")" : "") +
@@ -230,11 +233,11 @@
           { view: "search", id: "bSearch", placeholder: "Cari nomor kiriman, kode, atau nama produk...",
             on: { onTimedKeyPress: function () { list.reload(true); } } },
           { view: "richselect", id: "bStatus", value: "", placeholder: "Semua status", width: SE.isNarrow() ? 0 : 180,
-            options: [{ id: "", value: "Semua status" }].concat(
+            options: [{ id: SE.ALL, value: "Semua status" }].concat(
               SE.STATUS_ORDER.map(function (s) { return { id: s, value: SE.STATUS_LABEL[s] }; })),
             on: { onChange: function () { list.reload(true); } } },
           { view: "richselect", id: "bStock", value: "true", width: SE.isNarrow() ? 0 : 180,
-            options: [{ id: "true", value: "Yang masih ada stok" }, { id: "", value: "Semua, termasuk yang habis" }],
+            options: [{ id: "true", value: "Yang masih ada stok" }, { id: SE.ALL, value: "Semua, termasuk yang habis" }],
             on: { onChange: function () { list.reload(true); } } }
         ]
       });

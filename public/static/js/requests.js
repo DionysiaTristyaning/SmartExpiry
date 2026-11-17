@@ -25,10 +25,13 @@
   var BASIS_TEXT = {
     expired: "Barang sudah kedaluwarsa, jadi semua sisa stoknya harus ditangani. Utamakan dikembalikan ke pemasok; kalau pemasok tidak mau menerima, musnahkan.",
     damaged: "Hanya barang yang rusak yang ditangani, semuanya sekaligus. Barang lain di kiriman ini tetap boleh dijual.",
+    damaged_direct: "Isi jumlah barang yang rusak. Jumlah itu langsung <b>ditahan</b> (tidak bisa dijual) sampai pengajuannya " +
+      "selesai atau ditolak. Barang lain di kiriman ini tetap boleh dijual.",
     near_expiry: "Barang masih bagus, jadi hanya boleh dikembalikan ke pemasok (boleh sebagian). Barang yang masih bagus tidak dimusnahkan."
   };
   function basisOption(o, unit) {
-    return { id: o.basis, value: SE.BASIS_LABEL[o.basis] + " (" + (o.fixed ? "" : "paling banyak ") + o.quantity + " " + unit + ")" };
+    var label = o.direct ? "Lapor barang rusak" : SE.BASIS_LABEL[o.basis];
+    return { id: o.basis, value: label + " (" + (o.fixed ? "" : "paling banyak ") + o.quantity + " " + unit + ")" };
   }
 
   SE.openRequestForm = function (batch, defaults, onDone) {
@@ -45,15 +48,19 @@
         esc(SE.FITNESS_LABEL[current.fitness]) + (current.damaged_quantity ? " (" + esc(current.damaged_quantity) + " rusak)" : "") +
         ((current.open_requests || []).length ? "<br>Sudah diajukan sebelumnya: " + esc(SE.openRequestText(current)) : "");
       if (!option) { hint.setHTML("<span class='form-hint'>" + head + "</span>"); return; }
-      hint.setHTML("<span class='form-hint'>" + head + "<br>" + BASIS_TEXT[basis] + "</span>");
-      if (option.fixed) { qty.setValue(option.quantity); qty.disable(); } else { qty.enable(); qty.setValue(option.quantity); }
+      hint.setHTML("<span class='form-hint'>" + head + "<br>" + BASIS_TEXT[option.direct ? "damaged_direct" : basis] + "</span>");
+      if (option.fixed) { qty.setValue(option.quantity); qty.disable(); }
+      else {
+        qty.enable();
+        /* laporan rusak langsung: jumlah dikosongkan supaya staff mengisi sendiri (bukan otomatis semua stok) */
+        qty.setValue(option.direct ? "" : option.quantity);
+      }
       if (option.types.indexOf("disposal") < 0) { type.setValue("return"); type.disable(); } else { type.enable(); }
     }
 
     var picker = SE.batchPicker(batch, { mode: "stock", productSource: "requestable",
       filter: function (b) { return SE.requestable(b).length > 0; },
-      emptyText: "Belum ada barang dari produk ini yang bisa diajukan. Pengajuan hanya untuk barang yang sudah kedaluwarsa, " +
-        "rusak, atau hampir kedaluwarsa (status Hampir Kedaluwarsa atau Kritis), dan yang belum punya pengajuan berjalan.",
+      emptyText: "Belum ada barang dari produk ini yang bisa diajukan (stoknya habis, atau seluruhnya sudah diajukan).",
       onBatch: function (b) {
         var basis = $$("rqBasis"), hint = $$("rqHint");
         if (!basis || !hint) { return; }
@@ -66,15 +73,18 @@
           hint.setHTML("<span class='form-hint warn'>" + ((b.open_requests || []).length
             ? "Kiriman ini sudah diajukan: " + esc(SE.openRequestText(b)) + ". Tunggu sampai pengajuan itu selesai " +
               "(atau dibatalkan) sebelum mengajukan lagi."
-            : "Barang ini masih lama kedaluwarsanya dan tidak rusak, jadi belum perlu diajukan.") + "</span>");
+            : "Tidak ada barang di kiriman ini yang bisa diajukan.") + "</span>");
           basis.setValue(""); return;
         }
-        basis.setValue(options[0].basis);
-        applyBasis(options[0].basis);
+        /* pilihan biasa (kedaluwarsa, rusak tercatat, hampir kedaluwarsa) didahulukan; lapor rusak langsung dipilih sendiri */
+        var preferred = options.filter(function (o) { return !o.direct; })[0] || options[0];
+        basis.setValue(preferred.basis);
+        applyBasis(preferred.basis);
       } });
     var win = SE.formWindow({ id: "winRequest", title: "Ajukan Pengembalian / Pemusnahan", width: 520, elements: [
       SE.tip("Pengajuan diperiksa Supervisor dulu. Setelah disetujui dan barangnya benar-benar dikembalikan atau dimusnahkan, " +
-        "buka menu Pengajuan lalu klik Selesaikan. Stok baru berkurang saat itu.")
+        "buka menu Pengajuan lalu klik Selesaikan. Stok baru berkurang saat itu. Barang rusak yang diajukan langsung " +
+        "ditahan (tidak bisa dijual) selama menunggu.")
     ].concat(picker.elements, [
       { view: "richselect", id: "rqBasis", label: "Barang yang diajukan", options: [], value: "",
         on: { onChange: function (v) { applyBasis(v); } } },
@@ -261,10 +271,10 @@
         subtitle: "Untuk barang yang hampir/sudah kedaluwarsa atau rusak. Harus disetujui Supervisor dulu; stok berkurang otomatis saat ditandai Selesai.",
         onShow: function () { list.reload(true); }, list: list, buttons: buttons,
         filters: [
-          { view: "richselect", id: "rqStatus", value: "", options: [{ id: "", value: "Semua status" }].concat(
+          { view: "richselect", id: "rqStatus", value: "", options: [{ id: SE.ALL, value: "Semua status" }].concat(
             Object.keys(SE.REQUEST_STATUS_LABEL).map(function (k) { return { id: k, value: SE.REQUEST_STATUS_LABEL[k] }; })),
             on: { onChange: function () { list.reload(true); } } },
-          { view: "richselect", id: "rqType", value: "", options: [{ id: "", value: "Semua jenis" },
+          { view: "richselect", id: "rqType", value: "", options: [{ id: SE.ALL, value: "Semua jenis" },
             { id: "disposal", value: "Pemusnahan" }, { id: "return", value: "Pengembalian" }],
             on: { onChange: function () { list.reload(true); } } }
         ]

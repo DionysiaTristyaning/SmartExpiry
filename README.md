@@ -149,7 +149,7 @@ Tidak perlu membuat venv, `pip install`, atau mengubah `.env` lagi. Cukup:
 
 > **Istilah di layar vs di dokumen.** Di layar aplikasi dipakai bahasa sehari-hari yang baku; di README, SD, dan SRS dipakai istilah teknisnya. Padanan: **Batch = Kiriman** (menu *Stok Barang*), Normal = *Aman*, Monitoring = *Dipantau*, Near Expired = *Hampir Kedaluwarsa*, Critical = *Kritis*, Expired = *Kedaluwarsa*, Retur = *Pengembalian* (ke pemasok), penyesuaian stok = *Stok disamakan*, SKU = *Kode produk*. Tabel lengkap ada di awal SD.
 
-**Hanya fitur di bawah ini yang sudah selesai dan diuji (243 tes otomatis):**
+**Hanya fitur di bawah ini yang sudah selesai dan diuji (265 tes otomatis):**
 
 - **Login dan logout**: password disimpan sebagai hash, akun nonaktif ditolak, sesi berakhir setelah 8 jam. **Salah password 5 kali berturut-turut → akun dikunci 15 menit** (Admin bisa membuka dengan mengganti password). **Keluar otomatis setelah 30 menit tanpa aktivitas** (komputer toko dipakai bergantian). Setiap pengguna bisa **mengganti password sendiri** (klik nama di kanan atas); akun baru atau yang direset Admin **wajib** membuat password sendiri saat masuk, jadi Admin tidak tahu password siapa pun.
 - **Tiga peran** dengan hak akses yang dicek di server:
@@ -169,6 +169,7 @@ Tidak perlu membuat venv, `pip install`, atau mengubah `.env` lagi. Cukup:
 - **Status kedaluwarsa** dihitung otomatis per batch (zona waktu Jakarta): Normal (> 30 hari), Monitoring (15–30), Near Expired (8–14), Critical (1–7), **Expired (0 hari atau lewat)**. Barang tidak boleh dijual pada tanggal kedaluwarsanya.
 - **Monitoring kedaluwarsa**: daftar batch Monitoring sampai Expired yang masih berstok, yang terdekat di atas.
 - **Saran Tindakan** (rekomendasi) berbasis aturan (bukan AI), satu per batch, lengkap dengan alasan: ambil dari rak dan ajukan penanganan (Expired), pisahkan barang rusak, segera tangani (Critical), jual lebih dulu (Near Expired), pantau (Monitoring), atau tidak perlu tindakan (Normal). **Tidak ada diskon.**
+- **Lapor barang rusak langsung**: Staff yang menemukan barang rusak (termasuk dari produk yang belum kedaluwarsa) cukup membuka **Pengajuan > + Ajukan**, memilih produk dan kiriman, memilih **Lapor barang rusak**, lalu mengisi jumlah dan alasan. Jumlah itu langsung **ditahan** (tidak bisa dijual) sampai pengajuannya selesai atau ditolak. Tidak perlu Cek Fisik dulu.
 - **Pengajuan retur/pemusnahan** (urutan ala ritel: **jual → retur → musnahkan**): untuk **barang Expired** (seluruh batch), **barang rusak** (semua yang rusak), atau barang **Near Expired/Critical** yang masih bagus (boleh sebagian, **hanya retur**, karena barang layak tidak dimusnahkan). Staff mengajukan → Supervisor menyetujui atau menolak (alasan wajib) → barang ditangani di luar aplikasi → Staff mana pun menandai **Selesai** dengan **keterangan bukti wajib** (retur: pemasok dan nomor dokumen; pemusnahan: cara dan saksi) → sistem **otomatis** mencatat stok keluar. Pengajuan tidak bisa bertumpuk: barang Expired baru bisa diajukan setelah pengajuan lain di batch yang sama selesai atau dibatalkan. Pengajuan bisa **dibatalkan** (oleh pengaju saat masih menunggu, atau oleh Supervisor setelah disetujui). Setiap langkah tercatat di riwayat.
 - **Tombol Panduan** (di atas, sebelah lonceng): tugas sehari-hari sesuai peran yang sedang login dan di menu mana mengerjakannya, plus arti status kedaluwarsa. Setiap form utama juga punya keterangan singkat di bagian atas dan petunjuk di bawah isian.
 - **Notifikasi lonceng** (di dalam aplikasi, bukan email/WhatsApp): Supervisor melihat pengajuan yang menunggu, usulan koreksi tanggal, dan penyesuaian stok yang belum dicek ulang; Admin melihat penyesuaian stok yang belum dicek ulang; Staff melihat pengajuan yang disetujui tapi belum selesai dan pengajuannya yang ditolak.
@@ -271,7 +272,7 @@ Prinsipnya **pemisahan tugas**: yang mencatat (Staff) berbeda dengan yang menyet
 - **7 koleksi** (mirip tabel): `master_karyawan` (akun dan peran), `master_product` (produk), `batches`, `stock_movements`, `inspections`, `handling_requests`, `audit_logs`. Tidak ada koleksi lokasi (satu outlet), notifikasi, atau pengaturan.
 
 **Pengujian**
-- **pytest** dan **mongomock** (database tiruan di memori): 243 tes otomatis tanpa koneksi Atlas.
+- **pytest** dan **mongomock** (database tiruan di memori): 265 tes otomatis tanpa koneksi Atlas.
 
 ### G5. Bagaimana tampilan dan server "ngobrol"?
 
@@ -309,7 +310,7 @@ Prinsipnya **pemisahan tugas**: yang mencatat (Staff) berbeda dengan yang menyet
 | **FE Webix** (opsional) | Ada | `public/static/js/*.js` dan `public/static/vendor/webix` |
 | **UI responsive** (opsional) | Ada | Laptop: sidebar + tabel. HP: menu laci + kartu per baris (ukuran dipilih saat halaman dibuka) |
 | **Indexing MongoDB** (opsional) | Ada | `app/indexes.py`: indeks **teks** (cari produk), **majemuk** (FEFO, monitoring, riwayat), dan **unik** (email, SKU, nomor batch, nomor pengajuan, serta pencegah transaksi ganda) |
-| **Unit testing** (opsional) | Ada | Folder `tests/`, dijalankan dengan `py -m pytest -q` (243 tes) |
+| **Unit testing** (opsional) | Ada | Folder `tests/`, dijalankan dengan `py -m pytest -q` (265 tes) |
 
 ### G7. Beberapa istilah yang mungkin ditanyakan
 

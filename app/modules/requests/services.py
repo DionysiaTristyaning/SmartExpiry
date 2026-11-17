@@ -63,11 +63,16 @@ def choose_option(batch, data):
     """Pilih dasar pengajuan. Bila batch hanya punya satu pilihan, `basis` boleh dikosongkan."""
     options = {o["basis"]: o for o in batch["request_options"]}
     if not options:
-        raise ValidationFailed("Pengajuan hanya untuk barang kedaluwarsa, rusak, atau kiriman yang Hampir Kedaluwarsa/Kritis. "
-                               "Kiriman ini masih Aman/Dipantau dan layak dijual.",
-                               {"batch_id": "Kiriman tidak memenuhi syarat."})
-    basis = data.get("basis") or (next(iter(options)) if len(options) == 1 else None)
-    if basis is None:
+        raise ValidationFailed("Tidak ada barang di kiriman ini yang bisa diajukan (stok habis atau seluruhnya sudah "
+                               "ditahan oleh pengajuan lain).", {"batch_id": "Kiriman tidak memenuhi syarat."})
+    basis = data.get("basis")
+    if not basis:
+        # Bila hanya ada satu pilihan biasa, itu yang dipakai. Laporan rusak langsung (`direct`) tidak pernah dipilih
+        # otomatis: Staff harus memilihnya dengan sengaja.
+        regular = [o for o in options.values() if not o.get("direct")]
+        if len(regular) == 1:
+            basis = regular[0]["basis"]
+    if not basis:
         raise ValidationFailed("Pilih dulu barang mana yang diajukan (barang rusak atau barang yang masih bagus).",
                                {"basis": "Wajib dipilih."})
     parse_enum(basis, REQUEST_BASES, "basis", "Dasar pengajuan")
@@ -120,6 +125,9 @@ def submit(db, actor, data):
             "product_id": batch["product_id"],
             "request_type": request_type,
             "basis": basis,
+            # "direct" = Staff melaporkan barang rusak langsung di form Ajukan (tanpa Cek Fisik): jumlahnya DITAHAN
+            # (tidak bisa dijual) selama pengajuan Menunggu/Disetujui. "inspection" = rusak yang dicatat lewat Cek Fisik.
+            "damage_source": ("direct" if option.get("direct") else "inspection") if basis == "damaged" else None,
             "quantity": quantity,
             "reason": reason,
             "status": "pending",

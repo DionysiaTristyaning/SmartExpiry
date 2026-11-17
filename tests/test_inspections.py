@@ -175,8 +175,10 @@ def test_only_damaged_units_are_blocked_the_rest_can_be_sold(login_as, db):
 
 def test_damaged_units_become_request_option_with_fixed_quantity(login_as, db):
     c = login_as(STAFF)
-    batch = batch_of(db, "P004")  # Normal: tanpa barang rusak tidak boleh diajukan
-    assert c.get(f"/api/v1/batches/{batch['_id']}").get_json()["data"]["request_options"] == []
+    batch = batch_of(db, "P004")  # Normal, belum ada rusak tercatat: hanya laporan rusak langsung (jumlah bebas)
+    before = c.get(f"/api/v1/batches/{batch['_id']}").get_json()["data"]["request_options"]
+    assert before == [{"basis": "damaged", "quantity": batch["current_quantity"], "fixed": False, "direct": True,
+                       "types": ["return", "disposal"]}]
     c.post(URL, json=_body(batch, batch["current_quantity"], product="rusak", notes="Basah", damaged=3))
     options = c.get(f"/api/v1/batches/{batch['_id']}").get_json()["data"]["request_options"]
     assert options == [{"basis": "damaged", "quantity": 3, "fixed": True, "types": ["return", "disposal"]}]

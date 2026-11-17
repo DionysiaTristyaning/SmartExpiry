@@ -156,12 +156,12 @@
   function onShow() {
     SE.api("GET", "/api/v1/products?sort=name&limit=100").then(function (res) {
       var f = $$("repProduct");
-      f.define("options", [{ id: "", value: "Semua produk" }].concat(res.data.map(function (p) { return { id: p.id, value: p.sku + " - " + p.name }; })));
+      f.define("options", [{ id: SE.ALL, value: "Semua produk" }].concat(res.data.map(function (p) { return { id: p.id, value: p.sku + " - " + p.name }; })));
       f.refresh();
       return SE.api("GET", "/api/v1/products/categories");
     }).then(function (res) {
       var f = $$("repCategory"), cur = f.getValue();
-      f.define("options", [{ id: "", value: "Semua kategori" }].concat(res.data.map(function (c) { return { id: c, value: c }; })));
+      f.define("options", [{ id: SE.ALL, value: "Semua kategori" }].concat(res.data.map(function (c) { return { id: c, value: c }; })));
       f.refresh(); f.setValue(cur || "");
     }).catch(function (err) { SE.toast(err.message, "error"); }).then(reload);
   }
@@ -190,7 +190,7 @@
           rowHeight: 58, columns: DEF[r.id].columns,
           onData: function (res) { summary(DEF[r.id].summary(res.summary), res); } });
       });
-      var statusOpts = [{ id: "", value: "Semua status" }].concat(SE.STATUS_ORDER.map(function (s) { return { id: s, value: SE.STATUS_LABEL[s] }; }));
+      var statusOpts = [{ id: SE.ALL, value: "Semua status" }].concat(SE.STATUS_ORDER.map(function (s) { return { id: s, value: SE.STATUS_LABEL[s] }; }));
       var dateCfg = { format: "%Y-%m-%d", stringResult: true, width: SE.isNarrow() ? 0 : 160 };
 
       return SE.listPage({
@@ -201,16 +201,16 @@
             on: { onChange: reload } },
           { view: "combo", id: "repProduct", value: "", placeholder: "Semua produk", options: [], hidden: true, width: SE.isNarrow() ? 0 : 230,
             on: { onChange: function () { lists[current()].reload(true); } } },
-          select("repCategory", [{ id: "", value: "Semua kategori" }]),
-          select("repActive", [{ id: "", value: "Aktif & nonaktif" }, { id: "true", value: "Aktif" }, { id: "false", value: "Nonaktif" }]),
+          select("repCategory", [{ id: SE.ALL, value: "Semua kategori" }]),
+          select("repActive", [{ id: SE.ALL, value: "Aktif & nonaktif" }, { id: "true", value: "Aktif" }, { id: "false", value: "Nonaktif" }]),
           select("repStatus", statusOpts),
-          select("repStock", [{ id: "", value: "Ada stok & habis" }, { id: "true", value: "Masih ada stok" }, { id: "false", value: "Stok habis" }]),
-          select("repNear", [{ id: "", value: "Hampir Kedaluwarsa + Kritis" }, { id: "near_expired", value: "Hampir Kedaluwarsa" }, { id: "critical", value: "Kritis" }]),
-          select("repInOut", [{ id: "", value: "Masuk & keluar" }, { id: "stock_in", value: "Stok masuk" }, { id: "stock_out", value: "Stok keluar" }]),
-          select("repAdj", [{ id: "", value: "Ditambah & dikurangi" }, { id: "adjustment_in", value: "Stok disamakan (tambah)" }, { id: "adjustment_out", value: "Stok disamakan (kurang)" }]),
-          select("repFit", [{ id: "", value: "Semua kondisi" }, { id: "fit", value: "Layak" }, { id: "unfit", value: "Ada yang rusak" }]),
-          select("repReqStatus", [{ id: "", value: "Semua status" }].concat(Object.keys(SE.REQUEST_STATUS_LABEL).map(function (k) { return { id: k, value: SE.REQUEST_STATUS_LABEL[k] }; }))),
-          select("repReqType", [{ id: "", value: "Semua jenis" }, { id: "return", value: "Pengembalian" }, { id: "disposal", value: "Pemusnahan" }]),
+          select("repStock", [{ id: SE.ALL, value: "Ada stok & habis" }, { id: "true", value: "Masih ada stok" }, { id: "false", value: "Stok habis" }]),
+          select("repNear", [{ id: SE.ALL, value: "Hampir Kedaluwarsa + Kritis" }, { id: "near_expired", value: "Hampir Kedaluwarsa" }, { id: "critical", value: "Kritis" }]),
+          select("repInOut", [{ id: SE.ALL, value: "Masuk & keluar" }, { id: "stock_in", value: "Stok masuk" }, { id: "stock_out", value: "Stok keluar" }]),
+          select("repAdj", [{ id: SE.ALL, value: "Ditambah & dikurangi" }, { id: "adjustment_in", value: "Stok disamakan (tambah)" }, { id: "adjustment_out", value: "Stok disamakan (kurang)" }]),
+          select("repFit", [{ id: SE.ALL, value: "Semua kondisi" }, { id: "fit", value: "Layak" }, { id: "unfit", value: "Ada yang rusak" }]),
+          select("repReqStatus", [{ id: SE.ALL, value: "Semua status" }].concat(Object.keys(SE.REQUEST_STATUS_LABEL).map(function (k) { return { id: k, value: SE.REQUEST_STATUS_LABEL[k] }; }))),
+          select("repReqType", [{ id: SE.ALL, value: "Semua jenis" }, { id: "return", value: "Pengembalian" }, { id: "disposal", value: "Pemusnahan" }]),
           Object.assign({ view: "datepicker", id: "repFrom", placeholder: "Dari tanggal", hidden: true,
             on: { onChange: function () { lists[current()].reload(true); } } }, dateCfg),
           Object.assign({ view: "datepicker", id: "repTo", placeholder: "Sampai tanggal", hidden: true,

@@ -7,7 +7,7 @@
   var list;
 
   var VIEWS = [
-    { id: "", value: "Semua" },
+    { id: SE.ALL, value: "Semua" },
     { id: "check_due", value: "Perlu dicek" },
     { id: "monitoring", value: "Dipantau" },
     { id: "near_expired", value: "Hampir Kedaluwarsa" },
@@ -20,7 +20,9 @@
   function actions(o) {
     var html = "";
     if (SE.isStaff() || SE.isSupervisor()) { html += "<span class='act act-inspect'>Cek fisik</span>"; }
-    if (SE.isStaff() && SE.requestable(o).some(function (r) { return r.basis !== "near_expiry"; })) {
+    /* tombol Ajukan di daftar pantau hanya untuk barang yang memang perlu ditangani (kedaluwarsa / rusak tercatat);
+       lapor rusak langsung dilakukan dari menu Pengajuan atau halaman rincian kiriman */
+    if (SE.isStaff() && SE.requestable(o).some(function (r) { return r.basis !== "near_expiry" && !r.direct; })) {
       html += "<span class='act act-danger act-request'>Ajukan</span>";
     } else if ((o.open_requests || []).length) {
       /* sudah ada pengajuan yang belum selesai: tampilkan nomornya, klik untuk membuka */

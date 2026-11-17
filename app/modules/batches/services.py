@@ -204,13 +204,19 @@ def enrich(db, batches, today=None):
             "packaging_condition": inspection["packaging_condition"], "is_fit": inspection["is_fit"],
             "damaged_quantity": expiry.inspection_damaged(inspection)}
         status, current = batch["expiry_status"], batch["current_quantity"]
-        damaged = damaged_map.get(batch["_id"], 0)
+        open_requests = open_map.get(batch["_id"], [])
+        recorded = damaged_map.get(batch["_id"], 0)  # rusak yang dicatat lewat Cek Fisik
+        # Laporan rusak langsung (form Ajukan) yang masih Menunggu/Disetujui: jumlahnya DITAHAN, tidak bisa dijual
+        held = sum(r["quantity"] for r in open_requests if r["basis"] == "damaged" and r.get("damage_source") == "direct")
+        damaged = max(recorded, held)  # bila keduanya mencatat barang yang sama, jangan dihitung dua kali
+        batch["recorded_damaged_quantity"] = recorded
+        batch["held_quantity"] = held
         batch["damaged_quantity"] = damaged
         batch["sellable_quantity"] = expiry.sellable_quantity(status, current, damaged)
         batch["fitness"] = expiry.fitness(status, inspection, damaged, current)
         batch["sellable"] = batch["sellable_quantity"] > 0
-        batch["request_options"] = expiry.request_options(status, current, damaged)
-        batch["open_requests"] = open_map.get(batch["_id"], [])
+        batch["request_options"] = expiry.request_options(status, current, recorded, held)
+        batch["open_requests"] = open_requests
         _mark_blocked(batch["request_options"], batch["open_requests"])
         batch.update(expiry.check_schedule(status, current, batch["received_date"], inspection, today))
     return batches
@@ -221,11 +227,13 @@ def _open_requests(db, batches):
     result = {}
     cursor = db.handling_requests.find(
         {"batch_id": {"$in": [b["_id"] for b in batches]}, "status": {"$in": ["pending", "approved"]}},
-        {"batch_id": 1, "request_number": 1, "status": 1, "basis": 1, "request_type": 1, "quantity": 1})
+        {"batch_id": 1, "request_number": 1, "status": 1, "basis": 1, "request_type": 1, "quantity": 1,
+         "damage_source": 1})
     for r in cursor.sort("submitted_at", 1):
         result.setdefault(r["batch_id"], []).append(
             {"id": str(r["_id"]), "request_number": r["request_number"], "status": r["status"],
-             "basis": r.get("basis"), "request_type": r["request_type"], "quantity": r["quantity"]})
+             "basis": r.get("basis"), "request_type": r["request_type"], "quantity": r["quantity"],
+             "damage_source": r.get("damage_source")})
     return result
 
 

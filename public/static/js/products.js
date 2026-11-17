@@ -13,7 +13,7 @@
 
   function loadCategories() {
     return api("GET", "/api/v1/products/categories").then(function (res) {
-      var options = [{ id: "", value: "Semua kategori" }].concat(res.data.map(function (c) { return { id: c, value: c }; }));
+      var options = [{ id: SE.ALL, value: "Semua kategori" }].concat(res.data.map(function (c) { return { id: c, value: c }; }));
       var filter = $$("pCategory");
       var current = filter.getValue();
       filter.define("options", options);
@@ -151,9 +151,9 @@
           { view: "search", id: "pSearch", placeholder: "Cari kode atau nama produk...",
             on: { onTimedKeyPress: function () { list.reload(true); } } },
           { view: "richselect", id: "pCategory", value: "", placeholder: "Semua kategori",
-            options: [{ id: "", value: "Semua kategori" }], on: { onChange: function () { list.reload(true); } } },
+            options: [{ id: SE.ALL, value: "Semua kategori" }], on: { onChange: function () { list.reload(true); } } },
           { view: "richselect", id: "pActive", value: "", placeholder: "Semua status", width: SE.isNarrow() ? 0 : 170,
-            options: [{ id: "", value: "Semua status" }, { id: "true", value: "Aktif" }, { id: "false", value: "Nonaktif" }],
+            options: [{ id: SE.ALL, value: "Semua status" }, { id: "true", value: "Aktif" }, { id: "false", value: "Nonaktif" }],
             on: { onChange: function () { list.reload(true); } } }
         ]
       });

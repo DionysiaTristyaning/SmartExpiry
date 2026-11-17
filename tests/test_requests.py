@@ -175,9 +175,13 @@ def test_history_and_filters(login_as, db):
 
 # ---------- syarat batch (keputusan 13 Nov 2026) ----------
 
-def test_normal_batch_cannot_be_requested(login_as, db):
-    response = _submit(login_as(STAFF), batch_of(db, "P004"))  # Mie instan, sisa 180 hari, layak
-    assert response.status_code == 400 and "Hampir Kedaluwarsa" in response.get_json()["error"]["message"]
+def test_normal_batch_can_only_be_requested_as_a_deliberate_damage_report(login_as, db):
+    c = login_as(STAFF)
+    normal = batch_of(db, "P004")  # Mie instan, sisa 180 hari, layak
+    no_basis = _submit(c, normal)  # tanpa memilih "barang rusak": tidak boleh otomatis
+    assert no_basis.status_code == 400 and "Pilih dulu" in no_basis.get_json()["error"]["message"]
+    assert _submit(c, normal, basis="near_expiry").status_code == 400  # barang layak yang masih lama tidak boleh diretur
+    assert _submit(c, normal, basis="damaged", quantity=2, reason="Kemasan basah").status_code == 201
 
 
 def test_expired_batch_must_be_handled_whole(login_as, db):
@@ -230,7 +234,8 @@ def test_request_options_are_sent_to_the_screen(login_as, db):
     options = {b["sku"]: [o["basis"] for o in b["request_options"]]
                for b in c.get("/api/v1/batches?limit=100").get_json()["data"]
                if b["sku"] in ("P004", "P009", "P013", "P005")}
-    assert options == {"P004": [], "P009": ["near_expiry"], "P013": ["expired"], "P005": ["damaged", "near_expiry"]}
+    assert options == {"P004": ["damaged"], "P009": ["damaged", "near_expiry"], "P013": ["expired"],
+                       "P005": ["damaged", "near_expiry"]}  # "damaged" pada P004/P009 = laporan rusak langsung
 
 
 # ---------- urutan ritel: jual -> retur -> musnahkan (keputusan 14 Nov 2026) ----------

@@ -66,7 +66,7 @@
         onShow: function () { list.reload(true); }, list: list,
         filters: [
           { view: "richselect", id: "rAction", value: "", width: SE.isNarrow() ? 0 : 280,
-            options: [{ id: "", value: "Semua saran" }].concat(Object.keys(ACTION_LABEL).map(function (k) {
+            options: [{ id: SE.ALL, value: "Semua saran" }].concat(Object.keys(ACTION_LABEL).map(function (k) {
               return { id: k, value: ACTION_LABEL[k] }; })), on: { onChange: function () { list.reload(true); } } }
         ]
       });

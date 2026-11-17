@@ -6,6 +6,10 @@
 
   SE.csrf = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
 
+  /* Penanda pilihan "Semua ..." pada filter. Webix tidak menerima id kosong (diganti nomor acak), jadi dipakai penanda
+     tetap ini; SE.query dan SE.go mengubahnya kembali menjadi "tanpa filter". */
+  SE.ALL = "__all__";
+
   SE.ROLE_LABEL = { admin: "Admin", supervisor: "Supervisor", staff: "Staff" };
   SE.STATUS_LABEL = {
     normal: "Aman", monitoring: "Dipantau", near_expired: "Hampir Kedaluwarsa",
@@ -235,9 +239,9 @@
       };
     }
 
-    /* opts.productSource = "requestable": dropdown produk hanya memuat produk yang memang bisa diajukan
-       (ada kiriman kedaluwarsa, rusak, atau hampir kedaluwarsa yang belum punya pengajuan berjalan),
-       lengkap dengan keterangan alasannya, supaya staf tidak memilih produk yang pasti ditolak. */
+    /* opts.productSource = "requestable": dropdown memuat SEMUA produk yang punya stok (staff boleh melaporkan barang
+       rusak dari produk mana pun). Produk yang perlu ditangani diberi keterangan alasannya (kedaluwarsa, ada yang
+       rusak, hampir kedaluwarsa) dan diurutkan paling atas; produk yang sehat ada di bawah tanpa keterangan. */
     var REQUEST_TAGS = ["kedaluwarsa", "ada yang rusak", "hampir kedaluwarsa"];
     var TAG_OF_BASIS = { expired: REQUEST_TAGS[0], damaged: REQUEST_TAGS[1], near_expiry: REQUEST_TAGS[2] };
 
@@ -259,16 +263,19 @@
             order.push(byProduct[b.product_id]);
           }
           options.forEach(function (o) {
+            if (o.direct) { return; }  // lapor rusak langsung selalu tersedia, jadi bukan alasan khusus
             var tag = TAG_OF_BASIS[o.basis];
             if (byProduct[b.product_id].tags.indexOf(tag) < 0) { byProduct[b.product_id].tags.push(tag); }
           });
         });
         order.forEach(function (p) {
           p.tags.sort(function (a, c) { return REQUEST_TAGS.indexOf(a) - REQUEST_TAGS.indexOf(c); });
-          p.rank = REQUEST_TAGS.indexOf(p.tags[0]);
+          p.rank = p.tags.length ? REQUEST_TAGS.indexOf(p.tags[0]) : REQUEST_TAGS.length;  // tanpa keterangan: paling bawah
         });
         order.sort(function (a, c) { return a.rank - c.rank || a.label.localeCompare(c.label); });  // yang paling mendesak di atas
-        return order.map(function (p) { return { id: p.id, value: p.label + " (" + p.tags.join(", ") + ")" }; });
+        return order.map(function (p) {
+          return { id: p.id, value: p.tags.length ? p.label + " (" + p.tags.join(", ") + ")" : p.label };
+        });
       });
     }
 
@@ -282,7 +289,7 @@
     return {
       elements: [
         { view: "combo", id: "pkProduct", label: "Produk",
-          placeholder: requestable ? "Pilih produk yang perlu ditangani" : "Ketik nama atau kode produk", options: [], value: "",
+          placeholder: requestable ? "Pilih produk (yang perlu ditangani ada di atas)" : "Ketik nama atau kode produk", options: [], value: "",
           on: { onChange: loadBatches } },
         { view: "richselect", id: "pkBatch", name: "batch_id", label: "Kiriman", options: [], value: "",
           on: { onChange: function (id) { onBatch(cache[id] || null); } } },
@@ -327,7 +334,7 @@
   };
 
   SE.query = function (params) {
-    return Object.keys(params || {}).filter(function (k) { return params[k] !== "" && params[k] != null; })
+    return Object.keys(params || {}).filter(function (k) { return params[k] !== "" && params[k] != null && params[k] !== SE.ALL; })
       .map(function (k) { return encodeURIComponent(k) + "=" + encodeURIComponent(params[k]); }).join("&");
   };
 
@@ -335,11 +342,12 @@
   SE.gutter = function () { return SE.isNarrow() ? 10 : 24; };
 
   SE.filterRow = function (items) {
-    /* Pilihan "Semua ..." memakai id kosong; Webix tidak menampilkan teks untuk nilai kosong, jadi teks itu
-       dipasang sebagai placeholder agar kotak filter tidak tampak kosong. */
+    /* Pilihan "Semua ..." memakai penanda SE.ALL. Filter dibuka dengan pilihan itu sudah terpilih, supaya kotaknya
+       langsung bertuliskan "Semua ..." (bukan kosong); teksnya juga dipasang sebagai placeholder sebagai cadangan. */
     items.forEach(function (it) {
-      if (it.view === "richselect" && !it.placeholder && it.options && it.options[0] && it.options[0].id === "") {
-        it.placeholder = it.options[0].value;
+      if (it.view === "richselect" && it.options && it.options[0] && it.options[0].id === SE.ALL) {
+        if (!it.value) { it.value = SE.ALL; }
+        if (!it.placeholder) { it.placeholder = it.options[0].value; }
       }
     });
     if (SE.isNarrow()) { return { rows: items, margin: 8 }; }

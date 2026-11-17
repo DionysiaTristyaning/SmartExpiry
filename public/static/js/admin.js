@@ -110,9 +110,9 @@
         onShow: function () { userList.reload(true); }, list: userList,
         buttons: [{ view: "button", value: "+ Tambah Pengguna", css: "webix_primary", width: 170, click: openUserForm }],
         filters: [
-          { view: "richselect", id: "uRole", value: "", options: [{ id: "", value: "Semua peran" }].concat(ROLE_OPTIONS),
+          { view: "richselect", id: "uRole", value: "", options: [{ id: SE.ALL, value: "Semua peran" }].concat(ROLE_OPTIONS),
             on: { onChange: function () { userList.reload(true); } } },
-          { view: "richselect", id: "uActive", value: "", options: [{ id: "", value: "Semua status" }, { id: "true", value: "Aktif" },
+          { view: "richselect", id: "uActive", value: "", options: [{ id: SE.ALL, value: "Semua status" }, { id: "true", value: "Aktif" },
             { id: "false", value: "Nonaktif" }], on: { onChange: function () { userList.reload(true); } } }
         ]
       });

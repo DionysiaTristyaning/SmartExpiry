@@ -159,13 +159,17 @@ def sellable_quantity(status, current, damaged):
     return max(0, current - damaged)
 
 
-def request_options(status, current, damaged):
-    """Pilihan pengajuan retur/pemusnahan untuk satu batch (keputusan pemilik 13-14 Nov 2026, direvisi 14 Nov):
+def request_options(status, current, damaged, held=0):
+    """Pilihan pengajuan retur/pemusnahan untuk satu batch (keputusan pemilik 13-14 Nov 2026, direvisi 14 dan 17 Nov):
     - expired     : batch Expired -> SELURUH stok, retur atau pemusnahan.
-    - damaged     : ada barang rusak -> SEMUA barang rusak itu (jumlahnya tetap), retur atau pemusnahan.
+    - damaged     : ada barang rusak yang SUDAH DICATAT lewat Cek Fisik (`damaged`) -> SEMUA barang rusak itu
+                    (jumlahnya tetap), retur atau pemusnahan.
+    - damaged (langsung, `direct`): barang rusak BELUM dicatat -> Staff melaporkan sendiri jumlahnya di form
+                    Ajukan (paling banyak stok yang belum ditahan). Jumlah itu DITAHAN (`held`: tidak bisa dijual)
+                    selama pengajuannya Menunggu/Disetujui. Berlaku untuk batch apa pun yang belum Expired.
     - near_expiry : batch Near Expired / Critical -> sebagian atau seluruh barang yang masih bagus, HANYA retur
                     (urutan ritel: jual -> retur -> musnahkan; barang layak tidak dibuang).
-    Batch Normal / Monitoring yang tidak rusak tidak boleh diajukan (daftar kosong).
+    `damaged` = rusak tercatat yang belum ditangani; `held` = jumlah laporan rusak langsung yang masih terbuka.
     """
     if current <= 0:
         return []
@@ -174,7 +178,10 @@ def request_options(status, current, damaged):
     options = []
     if damaged > 0:
         options.append({"basis": "damaged", "quantity": damaged, "fixed": True, "types": ["return", "disposal"]})
-    good = current - damaged
+    elif current - held > 0:
+        options.append({"basis": "damaged", "quantity": current - held, "fixed": False, "direct": True,
+                        "types": ["return", "disposal"]})
+    good = current - max(damaged, held)
     if status in ("near_expired", "critical") and good > 0:
         options.append({"basis": "near_expiry", "quantity": good, "fixed": False, "types": ["return"]})
     return options

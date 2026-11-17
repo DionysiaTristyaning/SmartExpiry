@@ -141,7 +141,7 @@
         onShow: function () { list.reload(true); }, list: list, buttons: buttons,
         filters: [
           { view: "richselect", id: "mType", value: "", placeholder: "Semua jenis",
-            options: [{ id: "", value: "Semua jenis" }].concat(Object.keys(SE.MOVEMENT_LABEL).map(function (k) {
+            options: [{ id: SE.ALL, value: "Semua jenis" }].concat(Object.keys(SE.MOVEMENT_LABEL).map(function (k) {
               return { id: k, value: SE.MOVEMENT_LABEL[k] }; })), on: { onChange: function () { list.reload(true); } } },
           { view: "datepicker", id: "mFrom", placeholder: "Dari tanggal", format: "%Y-%m-%d", stringResult: true,
             width: SE.isNarrow() ? 0 : 170, on: { onChange: function () { list.reload(true); } } },

@@ -235,9 +235,9 @@
         subtitle: "Hasil hitung dan cek kondisi barang di rak toko. Kalau jumlahnya berbeda dengan catatan, Staff bisa menyamakan stoknya.",
         onShow: function () { list.reload(true); }, list: list, buttons: buttons,
         filters: [
-          { view: "richselect", id: "iFit", value: "", options: [{ id: "", value: "Semua kondisi" }, { id: "fit", value: "Layak" },
+          { view: "richselect", id: "iFit", value: "", options: [{ id: SE.ALL, value: "Semua kondisi" }, { id: "fit", value: "Layak" },
             { id: "unfit", value: "Ada yang rusak" }], on: { onChange: function () { list.reload(true); } } },
-          { view: "richselect", id: "iDiff", value: "", options: [{ id: "", value: "Semua" }, { id: "true", value: "Jumlahnya berbeda" },
+          { view: "richselect", id: "iDiff", value: "", options: [{ id: SE.ALL, value: "Semua" }, { id: "true", value: "Jumlahnya berbeda" },
             { id: "pending", value: "Koreksi tanggal menunggu" }], on: { onChange: function () { list.reload(true); } } }
         ]
       });

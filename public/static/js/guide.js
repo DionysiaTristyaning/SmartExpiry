@@ -21,7 +21,8 @@
       "<li>Barang datang dari pemasok: menu " + m("Stok Barang") + ", tombol <b>+ Barang Datang</b>. Barang yang rusak saat datang diisi di kolom ditolak.</li>" +
       "<li>Barang terjual: menu " + m("Keluar-Masuk Stok") + ", tombol <b>+ Catat Terjual</b>. Untuk banyak produk sekaligus, pakai <b>Impor File</b>.</li>" +
       "<li>Cek fisik di rak: menu " + m("Pantau Kedaluwarsa") + ", tab <b>Perlu dicek</b>, lalu klik <b>Cek fisik</b> pada barangnya. Kalau jumlahnya berbeda, pilih <b>Samakan stok</b>.</li>" +
-      "<li>Barang kedaluwarsa, rusak, atau hampir kedaluwarsa: klik <b>Ajukan</b> di " + m("Pantau Kedaluwarsa") + " atau " + m("Saran Tindakan") + ", lalu tunggu persetujuan Supervisor.</li>" +
+      "<li>Barang kedaluwarsa atau hampir kedaluwarsa: klik <b>Ajukan</b> di " + m("Pantau Kedaluwarsa") + " atau " + m("Saran Tindakan") + ", lalu tunggu persetujuan Supervisor.</li>" +
+      "<li>Menemukan barang rusak di rak (barang apa pun, termasuk yang belum kedaluwarsa): buka menu " + m("Pengajuan") + ", klik <b>+ Ajukan</b>, pilih produk dan kirimannya, pilih <b>Barang rusak</b>, lalu isi jumlah dan alasannya. Jumlah itu langsung <b>ditahan</b> (tidak bisa dijual) sampai pengajuannya selesai atau ditolak.</li>" +
       "<li>Pengajuan yang sudah disetujui: kembalikan ke pemasok atau musnahkan barangnya, lalu buka menu " + m("Pengajuan") + " dan klik <b>Selesaikan</b>. Stok berkurang otomatis.</li></ol>" +
       "<h3>Isi lonceng</h3><ul>" +
       "<li>Kiriman perlu dicek fisik: sudah waktunya dicek menurut jadwal.</li>" +

@@ -56,8 +56,8 @@
   function onShow() {
     SE.api("GET", "/api/v1/activity/options").then(function (res) {
       var a = $$("acActor"), b = $$("acAction");
-      a.define("options", [{ id: "", value: "Semua pengguna" }].concat(res.data.actors.map(function (u) { return { id: u.id, value: u.name }; })));
-      b.define("options", [{ id: "", value: "Semua aktivitas" }].concat(res.data.actions));
+      a.define("options", [{ id: SE.ALL, value: "Semua pengguna" }].concat(res.data.actors.map(function (u) { return { id: u.id, value: u.name }; })));
+      b.define("options", [{ id: SE.ALL, value: "Semua aktivitas" }].concat(res.data.actions));
       a.refresh(); b.refresh();
     }).catch(function () { }).then(function () { list.reload(true); });
   }
@@ -82,9 +82,9 @@
         subtitle: "Catatan siapa melakukan apa dan kapan. Catatan ini tidak bisa diubah atau dihapus.",
         onShow: onShow, list: list,
         filters: [
-          { view: "richselect", id: "acActor", value: "", options: [{ id: "", value: "Semua pengguna" }],
+          { view: "richselect", id: "acActor", value: "", options: [{ id: SE.ALL, value: "Semua pengguna" }],
             on: { onChange: function () { list.reload(true); } } },
-          { view: "richselect", id: "acAction", value: "", options: [{ id: "", value: "Semua aktivitas" }],
+          { view: "richselect", id: "acAction", value: "", options: [{ id: SE.ALL, value: "Semua aktivitas" }],
             on: { onChange: function () { list.reload(true); } } },
           Object.assign({ view: "datepicker", id: "acFrom", placeholder: "Dari tanggal" }, dateCfg),
           Object.assign({ view: "datepicker", id: "acTo", placeholder: "Sampai tanggal" }, dateCfg)

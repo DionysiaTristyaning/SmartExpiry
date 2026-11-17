@@ -71,10 +71,10 @@
   SE.go = function (pageId, view) {
     if (!pageId || !$$("sidebar").getItem(pageId)) { return; }
     $$("sidebar").select(pageId);
-    if (pageId === "monitoring" && $$("monView")) { $$("monView").setValue(view || ""); }
-    if (pageId === "requests" && $$("rqStatus")) { $$("rqStatus").setValue(view || ""); }
+    if (pageId === "monitoring" && $$("monView")) { $$("monView").setValue(view || SE.ALL); }
+    if (pageId === "requests" && $$("rqStatus")) { $$("rqStatus").setValue(view || SE.ALL); }
     if (pageId === "reports" && view && SE.openReport) { SE.openReport(view); }
-    if (pageId === "inspections" && $$("iDiff")) { $$("iDiff").setValue(view || ""); }
+    if (pageId === "inspections" && $$("iDiff")) { $$("iDiff").setValue(view || SE.ALL); }
   };
 
   /* Menu dikelompokkan dengan label kecil. Modul tanpa kelompok masuk "Lainnya". */

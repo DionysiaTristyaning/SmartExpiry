@@ -123,7 +123,7 @@
     var el = target && target.closest ? target.closest(".card-link") : null;
     if (!el) { return; }
     var page = el.getAttribute("data-go"), view = el.getAttribute("data-view");
-    if (page === "batches") { SE.go("batches"); if ($$("bStatus")) { $$("bStatus").setValue(view || ""); } return; }
+    if (page === "batches") { SE.go("batches"); if ($$("bStatus")) { $$("bStatus").setValue(view || SE.ALL); } return; }
     SE.go(page, view);
   }
 
