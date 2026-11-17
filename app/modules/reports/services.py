@@ -136,14 +136,13 @@ def stock_batches(db, args, skip, limit):
 
 def near_expiry(db, args, skip, limit):
     today = today_jakarta()
-    statuses = ("near_expired", "critical")
+    statuses = ("critical",)
     status = parse_enum(args.get("status"), statuses, "status", "Status", required=False)
     query = {"current_quantity": {"$gt": 0}}
     if status:
         query["expiry_date"] = expiry.expiry_date_filter(status, today)
-    else:  # Near Expired + Critical = sisa 1..14 hari
-        query["expiry_date"] = {"$gt": expiry.expiry_date_filter("critical", today)["$gt"],
-                                "$lte": expiry.expiry_date_filter("near_expired", today)["$lte"]}
+    else:  # Critical = sisa 1..30 hari
+        query["expiry_date"] = expiry.expiry_date_filter("critical", today)
     product_id = _product_filter(args)
     if product_id:
         query["product_id"] = product_id

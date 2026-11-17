@@ -7,7 +7,7 @@
 | Tanggal | 14 November 2026 |
 | Dokumen terkait | `SD_Smart_Expiry_Stock_Management_System.md` versi 2.1 (rincian aturan, database, dan arsitektur) |
 
-**Padanan istilah.** Di layar, pesan, dan laporan, istilah teknis di dokumen ini tampil dalam bahasa sehari-hari yang baku (misalnya Batch = *Kiriman*, Near Expired = *Hampir Kedaluwarsa*, Critical = *Kritis*, Retur = *Pengembalian*). Tabel lengkapnya ada di SD, bagian pembuka (Padanan istilah).
+**Padanan istilah.** Di layar, pesan, dan laporan, istilah teknis di dokumen ini tampil dalam bahasa sehari-hari yang baku (misalnya Batch = *Kiriman*, Monitoring = *Perlu Dipantau*, Critical = *Kritis*, Retur = *Pengembalian*). Tabel lengkapnya ada di SD, bagian pembuka (Padanan istilah).
 
 **Riwayat perubahan**
 
@@ -111,7 +111,7 @@ Matriks hak akses lengkap: SD 4.2.
 
 ## 3.6 Monitoring Kedaluwarsa (FR-EXP)
 - FR-EXP-01: Sisa hari = tanggal kedaluwarsa − hari ini (WIB).
-- FR-EXP-02: Status dihitung saat dibaca, tidak disimpan: Normal (> 30), Monitoring (15–30), Near Expired (8–14), Critical (1–7), Expired (≤ 0). Barang tidak boleh dijual pada tanggal kedaluwarsanya; sisa 0 hari diberi label "Kedaluwarsa hari ini".
+- FR-EXP-02: Status dihitung saat dibaca, tidak disimpan: Normal (> 90), Monitoring (31–90), Critical (1–30), Expired (≤ 0). Barang tidak boleh dijual pada tanggal kedaluwarsanya; sisa 0 hari diberi label "Kedaluwarsa hari ini".
 - FR-EXP-03: Batas hari ditetapkan di kode.
 - FR-EXP-04: Daftar monitoring menampilkan batch Monitoring sampai Expired dengan stok > 0, diurutkan dari yang paling dekat kedaluwarsa.
 - FR-EXP-05: Batch dengan stok 0 tidak dipantau; batch Expired tidak dihapus otomatis.
@@ -121,17 +121,17 @@ Matriks hak akses lengkap: SD 4.2.
 - FR-INS-02: Setiap pemeriksaan adalah catatan baru; riwayat tidak ditimpa.
 - FR-INS-03: Pemeriksaan tidak mengubah stok. Bila ada selisih, Staff dapat langsung menyesuaikan stok (FR-STK-06).
 - FR-INS-04: Bila tanggal di kemasan berbeda, sistem menyimpan **usulan koreksi**. Supervisor (bukan pemeriksanya) menyetujui atau menolak (alasan wajib). Disetujui → tanggal batch diganti dan tanggal lama disimpan di riwayat batch. Satu usulan menunggu per batch.
-- FR-INS-06: Jadwal cek fisik: Critical tiap 1 hari, Near Expired tiap 3 hari, Monitoring/Normal tiap 7 hari (tanggal datang = cek pertama; Expired tidak dijadwalkan). Batch yang jatuh tempo tampil di daftar "Perlu dicek", dashboard Staff, dan lonceng Staff.
+- FR-INS-06: Jadwal cek fisik: Critical tiap 3 hari, Monitoring/Normal tiap 14 hari (tanggal datang = cek pertama; Expired tidak dijadwalkan). Batch yang jatuh tempo tampil di daftar "Perlu dicek", dashboard Staff, dan lonceng Staff.
 - FR-INS-05: Barang rusak dihitung per buah: stok yang boleh dijual = stok − barang rusak yang belum ditangani; barang rusak berkurang saat pengajuan barang rusak diselesaikan.
 
 ## 3.8 Rekomendasi (FR-REC)
-- FR-REC-01: Rekomendasi dihitung saat dibuka, satu per batch, menurut urutan aturan di SD 5.5 B (Expired → rusak → Critical → Near Expired → Monitoring → Normal).
+- FR-REC-01: Rekomendasi dihitung saat dibuka, satu per batch, menurut urutan aturan di SD 5.5 B (Expired → rusak → Critical → Monitoring → Normal).
 - FR-REC-02: Setiap rekomendasi menampilkan alasannya.
 - FR-REC-03: Tidak ada rekomendasi diskon. Batch Expired atau tidak layak selalu mendapat rekomendasi tarik/pisahkan dan ajukan retur atau pemusnahan.
 - FR-REC-04: Rekomendasi tidak mengubah stok dan tidak menjalankan tindakan.
 
 ## 3.9 Pengajuan Tindak Lanjut (FR-REQ)
-- FR-REQ-01: Pengajuan dipakai untuk penanganan barang kedaluwarsa, mendekati kedaluwarsa, atau rusak. Jenis: Retur, Pemusnahan. Setiap pengajuan punya **dasar**: Barang Expired, Barang rusak, atau Mendekati kedaluwarsa (Near Expired/Critical). Batch Normal/Monitoring tanpa barang rusak tidak boleh diajukan.
+- FR-REQ-01: Pengajuan dipakai untuk penanganan barang kedaluwarsa, mendekati kedaluwarsa, atau rusak. Jenis: Retur, Pemusnahan. Setiap pengajuan punya **dasar**: Barang Expired, Barang rusak, atau Mendekati kedaluwarsa (Critical). Batch Normal/Monitoring tanpa barang rusak tidak boleh diajukan.
 - FR-REQ-01a: Barang Expired wajib diajukan **seluruh stok batch**; barang rusak wajib diajukan **semua barang rusak itu** (jumlah dari cek fisik); barang mendekati kedaluwarsa yang masih bagus boleh sebagian. Pengajuan tidak mengunci stok.
 - FR-REQ-01b: **Pemusnahan hanya untuk barang Expired atau rusak**; barang yang masih bagus hanya boleh diretur (urutan jual → retur → musnahkan).
 - FR-REQ-01c: Staff dapat melaporkan **barang rusak langsung** di form Ajukan untuk batch yang belum Expired, tanpa Cek Fisik. Jumlah (paling banyak stok yang belum ditahan) **ditahan**: tidak bisa dijual selama pengajuan Menunggu atau Disetujui; dilepas bila Ditolak atau Dibatalkan; menjadi pengurangan stok bila Selesai. Bila batch sudah punya rusak tercatat lewat Cek Fisik, yang diajukan adalah jumlah tercatat itu. Dropdown produk di form Ajukan memuat semua produk berstok, dengan keterangan alasan bagi yang perlu ditangani.

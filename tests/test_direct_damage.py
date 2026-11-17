@@ -125,7 +125,7 @@ def test_inspection_after_a_direct_report_does_not_double_count(login_as, db):
 
 def test_hold_leaves_room_for_a_near_expiry_return(login_as, db):
     c = login_as(STAFF)
-    batch = batch_of(db, "P009")                       # Near Expired, stok 40
+    batch = batch_of(db, "P009")                       # Critical (14 hari), stok 40
     assert _damage(c, batch, 5).status_code == 201
     options = {o["basis"]: o for o in _state(c, batch)["request_options"]}
     assert options["near_expiry"]["quantity"] == 35 and options["damaged"]["blocked_by"]

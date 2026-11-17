@@ -10,14 +10,14 @@
     { id: "stock-products", value: "Stok produk", filters: ["repCategory", "repActive"] },
     { id: "low-stock", value: "Stok menipis (perlu pesan ulang)", filters: ["repCategory"] },
     { id: "stock-batches", value: "Stok per kiriman", filters: ["repProduct", "repStatus", "repStock"] },
-    { id: "near-expiry", value: "Mendekati kedaluwarsa", filters: ["repProduct", "repNear"] },
+    { id: "near-expiry", value: "Mendekati kedaluwarsa", filters: ["repProduct"] },
     { id: "expired", value: "Produk kedaluwarsa", filters: ["repProduct"] },
     { id: "movements", value: "Riwayat stok masuk & keluar", filters: ["repProduct", "repInOut", "repFrom", "repTo"] },
     { id: "adjustments", value: "Riwayat penyamaan stok", filters: ["repProduct", "repAdj", "repFrom", "repTo"] },
     { id: "inspections", value: "Riwayat cek fisik", filters: ["repProduct", "repFit", "repFrom", "repTo"] },
     { id: "requests", value: "Riwayat pengajuan", filters: ["repReqStatus", "repReqType", "repFrom", "repTo"] }
   ];
-  var ALL_FILTERS = ["repCategory", "repActive", "repProduct", "repStatus", "repStock", "repNear", "repInOut", "repAdj",
+  var ALL_FILTERS = ["repCategory", "repActive", "repProduct", "repStatus", "repStock", "repInOut", "repAdj",
     "repFit", "repReqStatus", "repReqType", "repFrom", "repTo"];
 
   function current() { return $$("repKind").getValue() || "stock-products"; }
@@ -27,7 +27,7 @@
   function params() {
     return {
       category: val("repCategory"), is_active: val("repActive"), product_id: val("repProduct"),
-      status: val("repStatus") || val("repNear") || val("repReqStatus"), has_stock: val("repStock"),
+      status: val("repStatus") || val("repReqStatus"), has_stock: val("repStock"),
       movement_type: val("repInOut") || val("repAdj"), fitness: val("repFit"), request_type: val("repReqType"),
       date_from: SE.dateOnly(val("repFrom")), date_to: SE.dateOnly(val("repTo"))
     };
@@ -205,7 +205,6 @@
           select("repActive", [{ id: SE.ALL, value: "Aktif & nonaktif" }, { id: "true", value: "Aktif" }, { id: "false", value: "Nonaktif" }]),
           select("repStatus", statusOpts),
           select("repStock", [{ id: SE.ALL, value: "Ada stok & habis" }, { id: "true", value: "Masih ada stok" }, { id: "false", value: "Stok habis" }]),
-          select("repNear", [{ id: SE.ALL, value: "Hampir Kedaluwarsa + Kritis" }, { id: "near_expired", value: "Hampir Kedaluwarsa" }, { id: "critical", value: "Kritis" }]),
           select("repInOut", [{ id: SE.ALL, value: "Masuk & keluar" }, { id: "stock_in", value: "Stok masuk" }, { id: "stock_out", value: "Stok keluar" }]),
           select("repAdj", [{ id: SE.ALL, value: "Ditambah & dikurangi" }, { id: "adjustment_in", value: "Stok disamakan (tambah)" }, { id: "adjustment_out", value: "Stok disamakan (kurang)" }]),
           select("repFit", [{ id: SE.ALL, value: "Semua kondisi" }, { id: "fit", value: "Layak" }, { id: "unfit", value: "Ada yang rusak" }]),

@@ -12,10 +12,10 @@
 
   SE.ROLE_LABEL = { admin: "Admin", supervisor: "Supervisor", staff: "Staff" };
   SE.STATUS_LABEL = {
-    normal: "Aman", monitoring: "Dipantau", near_expired: "Hampir Kedaluwarsa",
+    normal: "Aman", monitoring: "Perlu Dipantau",
     critical: "Kritis", expired: "Kedaluwarsa"
   };
-  SE.STATUS_ORDER = ["normal", "monitoring", "near_expired", "critical", "expired"];
+  SE.STATUS_ORDER = ["normal", "monitoring", "critical", "expired"];
   SE.MOVEMENT_LABEL = {
     stock_in: "Stok Masuk", stock_out: "Stok Keluar",
     adjustment_in: "Stok disamakan (tambah)", adjustment_out: "Stok disamakan (kurang)"
@@ -241,8 +241,8 @@
 
     /* opts.productSource = "requestable": dropdown memuat SEMUA produk yang punya stok (staff boleh melaporkan barang
        rusak dari produk mana pun). Produk yang perlu ditangani diberi keterangan alasannya (kedaluwarsa, ada yang
-       rusak, hampir kedaluwarsa) dan diurutkan paling atas; produk yang sehat ada di bawah tanpa keterangan. */
-    var REQUEST_TAGS = ["kedaluwarsa", "ada yang rusak", "hampir kedaluwarsa"];
+       rusak, segera kedaluwarsa) dan diurutkan paling atas; produk yang sehat ada di bawah tanpa keterangan. */
+    var REQUEST_TAGS = ["kedaluwarsa", "ada yang rusak", "segera kedaluwarsa"];
     var TAG_OF_BASIS = { expired: REQUEST_TAGS[0], damaged: REQUEST_TAGS[1], near_expiry: REQUEST_TAGS[2] };
 
     function allStockedBatches(page, acc) {

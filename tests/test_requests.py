@@ -225,7 +225,7 @@ def test_completing_damaged_request_clears_the_damage(login_as, db):
     assert after["sellable_quantity"] == 9 and reconcile(db, roti["_id"]) == 9
 
 
-def test_fit_near_expired_batch_may_be_partial(login_as, db):
+def test_fit_critical_batch_may_be_partial(login_as, db):
     assert _submit(login_as(STAFF), batch_of(db, "P009"), request_type="return", quantity=3).status_code == 201
 
 
@@ -242,7 +242,7 @@ def test_request_options_are_sent_to_the_screen(login_as, db):
 
 def test_fit_batch_cannot_be_disposed_only_returned(login_as, db):
     c = login_as(STAFF)
-    response = _submit(c, batch_of(db, "P009"), request_type="disposal", quantity=3)  # Kopi: Near Expired, layak
+    response = _submit(c, batch_of(db, "P009"), request_type="disposal", quantity=3)  # Kopi: Critical, layak
     assert response.status_code == 400 and "Pemusnahan hanya untuk barang kedaluwarsa atau rusak" in response.get_json()["error"]["message"]
     assert _submit(c, batch_of(db, "P009"), request_type="return", quantity=3).status_code == 201
 

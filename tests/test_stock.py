@@ -71,9 +71,9 @@ def test_invalid_date_text_is_rejected(login_as, db):
 
 def test_preview_shows_status_and_saves_nothing(login_as, db):
     before = db.batches.count_documents({})
-    response = login_as(STAFF).post("/api/v1/batches/preview", json=_stock_in(db, expiry_days=10))
+    response = login_as(STAFF).post("/api/v1/batches/preview", json=_stock_in(db, expiry_days=60))
     data = response.get_json()["data"]
-    assert response.status_code == 200 and data["expiry_status"] == "near_expired" and data["remaining_days"] == 10
+    assert response.status_code == 200 and data["expiry_status"] == "monitoring" and data["remaining_days"] == 60
     assert db.batches.count_documents({}) == before
 
 
@@ -302,9 +302,10 @@ def test_check_schedule_rules():
     from datetime import date, datetime, timezone
     from app.modules.expiry.services import check_schedule
     today = date(2026, 11, 14)
-    assert check_schedule("critical", 5, "2026-11-13", None, today)["check_due"] is True      # 1 hari
-    assert check_schedule("near_expired", 5, "2026-11-12", None, today)["check_due"] is False  # 2 < 3 hari
-    assert check_schedule("normal", 5, "2026-11-07", None, today)["check_due"] is True         # 7 hari
+    assert check_schedule("critical", 5, "2026-11-11", None, today)["check_due"] is True       # 3 hari
+    assert check_schedule("critical", 5, "2026-11-12", None, today)["check_due"] is False      # 2 < 3 hari
+    assert check_schedule("monitoring", 5, "2026-11-01", None, today)["check_due"] is False    # 13 < 14 hari
+    assert check_schedule("normal", 5, "2026-10-31", None, today)["check_due"] is True         # 14 hari
     insp = {"inspected_at": datetime(2026, 11, 13, 20, 0, tzinfo=timezone.utc)}                # = 14 Nov WIB
     assert check_schedule("critical", 5, "2026-10-01", insp, today)["check_due"] is False
     assert check_schedule("expired", 5, "2026-10-01", None, today)["check_due"] is False       # tidak dijadwalkan
@@ -315,9 +316,9 @@ def test_check_due_list_and_inspection_clears_it(login_as, db):
     c = login_as(STAFF)
     items = c.get("/api/v1/expiry/alerts?status=check_due&limit=100").get_json()["data"]
     assert items and all(i["check_due"] and i["expiry_status"] != "expired" for i in items)
-    ranks = ["critical", "near_expired", "monitoring", "normal"]
+    ranks = ["critical", "monitoring", "normal"]
     assert [ranks.index(i["expiry_status"]) for i in items] == sorted(ranks.index(i["expiry_status"]) for i in items)
-    target = next(i for i in items if i["sku"] == "P004")
+    target = items[0]
     c.post("/api/v1/inspections", json={"batch_id": target["id"], "physical_quantity": target["current_quantity"],
                                         "product_condition": "baik", "packaging_condition": "baik", "client_request_id": rid()})
     after = c.get("/api/v1/expiry/alerts?status=check_due&limit=100").get_json()["data"]

@@ -21,7 +21,7 @@
   /* Pilihan "barang yang diajukan" dihitung server (request_options):
        expired     -> batch Expired: seluruh stok, retur atau pemusnahan
        damaged     -> barang rusak dari cek fisik: semua barang rusak itu, retur atau pemusnahan
-       near_expiry -> batch Near Expired / Critical: barang yang masih bagus, boleh sebagian, HANYA retur */
+       near_expiry -> batch Critical (1 bulan terakhir): barang yang masih bagus, boleh sebagian, HANYA retur */
   var BASIS_TEXT = {
     expired: "Barang sudah kedaluwarsa, jadi semua sisa stoknya harus ditangani. Utamakan dikembalikan ke pemasok; kalau pemasok tidak mau menerima, musnahkan.",
     damaged: "Hanya barang yang rusak yang ditangani, semuanya sekaligus. Barang lain di kiriman ini tetap boleh dijual.",
@@ -76,7 +76,7 @@
             : "Tidak ada barang di kiriman ini yang bisa diajukan.") + "</span>");
           basis.setValue(""); return;
         }
-        /* pilihan biasa (kedaluwarsa, rusak tercatat, hampir kedaluwarsa) didahulukan; lapor rusak langsung dipilih sendiri */
+        /* pilihan biasa (kedaluwarsa, rusak tercatat, kritis) didahulukan; lapor rusak langsung dipilih sendiri */
         var preferred = options.filter(function (o) { return !o.direct; })[0] || options[0];
         basis.setValue(preferred.basis);
         applyBasis(preferred.basis);
@@ -268,7 +268,7 @@
 
       return SE.listPage({
         id: "requests", title: "Pengajuan Pengembalian / Pemusnahan",
-        subtitle: "Untuk barang yang hampir/sudah kedaluwarsa atau rusak. Harus disetujui Supervisor dulu; stok berkurang otomatis saat ditandai Selesai.",
+        subtitle: "Untuk barang yang kritis, sudah kedaluwarsa, atau rusak. Harus disetujui Supervisor dulu; stok berkurang otomatis saat ditandai Selesai.",
         onShow: function () { list.reload(true); }, list: list, buttons: buttons,
         filters: [
           { view: "richselect", id: "rqStatus", value: "", options: [{ id: SE.ALL, value: "Semua status" }].concat(

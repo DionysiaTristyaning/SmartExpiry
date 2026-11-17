@@ -6,10 +6,9 @@
   function m(name) { return "<span class='menu'>" + name + "</span>"; }
 
   var STATUS = "<h3>Arti status kedaluwarsa</h3><ul>" +
-    "<li>Aman: masih lebih dari 30 hari.</li>" +
-    "<li>Dipantau: 15 sampai 30 hari lagi.</li>" +
-    "<li>Hampir Kedaluwarsa: 8 sampai 14 hari lagi. Jual lebih dulu.</li>" +
-    "<li>Kritis: 1 sampai 7 hari lagi. Dicek setiap hari.</li>" +
+    "<li>Aman: masih lebih dari 3 bulan (90 hari).</li>" +
+    "<li>Perlu Dipantau: 1 sampai 3 bulan lagi (31 sampai 90 hari). Dicek berkala dan dijual sesuai urutan, yang paling dulu kedaluwarsa dijual lebih dulu.</li>" +
+    "<li>Kritis: 1 bulan terakhir (1 sampai 30 hari). Taruh di depan rak, jual lebih dulu, dan dicek lebih sering. Kalau tidak akan terjual, ajukan pengembalian ke pemasok.</li>" +
     "<li>Kedaluwarsa: hari ini atau sudah lewat. Tidak boleh dijual dan harus diajukan pengembalian atau pemusnahan.</li></ul>" +
     "<h3>Istilah</h3><ul>" +
     "<li>Kiriman: barang yang datang bersamaan dengan tanggal kedaluwarsa yang sama. Setiap barang datang dicatat sebagai satu kiriman dengan nomor otomatis.</li>" +
@@ -21,7 +20,7 @@
       "<li>Barang datang dari pemasok: menu " + m("Stok Barang") + ", tombol <b>+ Barang Datang</b>. Barang yang rusak saat datang diisi di kolom ditolak.</li>" +
       "<li>Barang terjual: menu " + m("Keluar-Masuk Stok") + ", tombol <b>+ Catat Terjual</b>. Untuk banyak produk sekaligus, pakai <b>Impor File</b>.</li>" +
       "<li>Cek fisik di rak: menu " + m("Pantau Kedaluwarsa") + ", tab <b>Perlu dicek</b>, lalu klik <b>Cek fisik</b> pada barangnya. Kalau jumlahnya berbeda, pilih <b>Samakan stok</b>.</li>" +
-      "<li>Barang kedaluwarsa atau hampir kedaluwarsa: klik <b>Ajukan</b> di " + m("Pantau Kedaluwarsa") + " atau " + m("Saran Tindakan") + ", lalu tunggu persetujuan Supervisor.</li>" +
+      "<li>Barang kedaluwarsa atau kritis: klik <b>Ajukan</b> di " + m("Pantau Kedaluwarsa") + " atau " + m("Saran Tindakan") + ", lalu tunggu persetujuan Supervisor.</li>" +
       "<li>Menemukan barang rusak di rak (barang apa pun, termasuk yang belum kedaluwarsa): buka menu " + m("Pengajuan") + ", klik <b>+ Ajukan</b>, pilih produk dan kirimannya, pilih <b>Barang rusak</b>, lalu isi jumlah dan alasannya. Jumlah itu langsung <b>ditahan</b> (tidak bisa dijual) sampai pengajuannya selesai atau ditolak.</li>" +
       "<li>Pengajuan yang sudah disetujui: kembalikan ke pemasok atau musnahkan barangnya, lalu buka menu " + m("Pengajuan") + " dan klik <b>Selesaikan</b>. Stok berkurang otomatis.</li></ol>" +
       "<h3>Isi lonceng</h3><ul>" +

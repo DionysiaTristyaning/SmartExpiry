@@ -6,7 +6,7 @@ Dasar pengajuan (basis), ditentukan dari kondisi batch (expiry.request_options):
     expired     -> batch Expired: SELURUH stok batch, retur atau pemusnahan
     damaged     -> barang rusak dari cek fisik: SEMUA barang rusak itu, retur atau pemusnahan
                    (sisa barang yang bagus tetap boleh dijual; standar ritel: rusak dipisah per buah)
-    near_expiry -> batch Near Expired / Critical: sebagian/seluruh barang yang masih bagus, HANYA retur
+    near_expiry -> batch Critical (1 bulan terakhir): sebagian/seluruh barang yang masih bagus, HANYA retur
 Satu batch hanya boleh punya satu pengajuan terbuka untuk setiap dasar. Pengajuan Barang Expired (seluruh stok)
 ditolak selama masih ada pengajuan lain yang terbuka untuk batch itu, supaya tidak ada barang yang diajukan dua kali.
 

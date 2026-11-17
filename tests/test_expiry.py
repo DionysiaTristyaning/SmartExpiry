@@ -10,8 +10,8 @@ from tests.conftest import STAFF
 
 
 @pytest.mark.parametrize("days,status", [
-    (365, "normal"), (31, "normal"), (30, "monitoring"), (15, "monitoring"), (14, "near_expired"),
-    (8, "near_expired"), (7, "critical"), (1, "critical"), (0, "expired"), (-1, "expired"), (-30, "expired"),
+    (365, "normal"), (91, "normal"), (90, "monitoring"), (60, "monitoring"), (31, "monitoring"),
+    (30, "critical"), (14, "critical"), (7, "critical"), (1, "critical"), (0, "expired"), (-1, "expired"), (-30, "expired"),
 ])
 def test_status_boundaries_do_not_overlap(days, status):
     today = date(2026, 11, 12)
@@ -58,7 +58,7 @@ def test_alerts_are_sorted_nearest_first_and_exclude_normal(login_as):
 
 def test_alert_status_filter(login_as):
     c = login_as(STAFF)
-    for status in ("monitoring", "near_expired", "critical", "expired"):
+    for status in ("monitoring", "critical", "expired"):
         items = c.get(f"/api/v1/expiry/alerts?status={status}").get_json()["data"]
         assert all(i["expiry_status"] == status for i in items)
     assert c.get("/api/v1/expiry/alerts?status=normal").status_code == 400

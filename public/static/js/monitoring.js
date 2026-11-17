@@ -1,4 +1,4 @@
-/* Monitoring Kedaluwarsa (SD 5.4): batch Monitoring, Near Expired, Critical, dan Expired yang masih berstok,
+/* Monitoring Kedaluwarsa (SD 5.4): batch Monitoring, Critical, dan Expired yang masih berstok,
    yang paling dekat kedaluwarsa di atas. Batch yang kedaluwarsa hari ini sudah Expired. */
 (function () {
   "use strict";
@@ -9,8 +9,7 @@
   var VIEWS = [
     { id: SE.ALL, value: "Semua" },
     { id: "check_due", value: "Perlu dicek" },
-    { id: "monitoring", value: "Dipantau" },
-    { id: "near_expired", value: "Hampir Kedaluwarsa" },
+    { id: "monitoring", value: "Perlu Dipantau" },
     { id: "critical", value: "Kritis" },
     { id: "expired", value: "Kedaluwarsa" }
   ];
@@ -65,7 +64,7 @@
 
       return SE.listPage({
         id: "monitoring", title: "Pantau Kedaluwarsa",
-        subtitle: "Barang yang kedaluwarsa dalam 30 hari atau sudah lewat. Tab \"Perlu dicek\" = yang harus dicek fisik hari ini.",
+        subtitle: "Barang yang kedaluwarsa dalam 3 bulan atau sudah lewat. Tab \"Perlu dicek\" = yang harus dicek fisik hari ini.",
         onShow: function () { list.reload(true); }, list: list, filters: [viewControl]
       });
     }

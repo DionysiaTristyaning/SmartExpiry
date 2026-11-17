@@ -147,9 +147,9 @@ Tidak perlu membuat venv, `pip install`, atau mengubah `.env` lagi. Cukup:
 
 ## D. Yang sudah ada di aplikasi saat ini (versi 2.1, satu outlet)
 
-> **Istilah di layar vs di dokumen.** Di layar aplikasi dipakai bahasa sehari-hari yang baku; di README, SD, dan SRS dipakai istilah teknisnya. Padanan: **Batch = Kiriman** (menu *Stok Barang*), Normal = *Aman*, Monitoring = *Dipantau*, Near Expired = *Hampir Kedaluwarsa*, Critical = *Kritis*, Expired = *Kedaluwarsa*, Retur = *Pengembalian* (ke pemasok), penyesuaian stok = *Stok disamakan*, SKU = *Kode produk*. Tabel lengkap ada di awal SD.
+> **Istilah di layar vs di dokumen.** Di layar aplikasi dipakai bahasa sehari-hari yang baku; di README, SD, dan SRS dipakai istilah teknisnya. Padanan: **Batch = Kiriman** (menu *Stok Barang*), Normal = *Aman*, Monitoring = *Perlu Dipantau*, Critical = *Kritis*, Expired = *Kedaluwarsa*, Retur = *Pengembalian* (ke pemasok), penyesuaian stok = *Stok disamakan*, SKU = *Kode produk*. Tabel lengkap ada di awal SD.
 
-**Hanya fitur di bawah ini yang sudah selesai dan diuji (265 tes otomatis):**
+**Hanya fitur di bawah ini yang sudah selesai dan diuji (264 tes otomatis):**
 
 - **Login dan logout**: password disimpan sebagai hash, akun nonaktif ditolak, sesi berakhir setelah 8 jam. **Salah password 5 kali berturut-turut → akun dikunci 15 menit** (Admin bisa membuka dengan mengganti password). **Keluar otomatis setelah 30 menit tanpa aktivitas** (komputer toko dipakai bergantian). Setiap pengguna bisa **mengganti password sendiri** (klik nama di kanan atas); akun baru atau yang direset Admin **wajib** membuat password sendiri saat masuk, jadi Admin tidak tahu password siapa pun.
 - **Tiga peran** dengan hak akses yang dicek di server:
@@ -162,15 +162,15 @@ Tidak perlu membuat venv, `pip install`, atau mengubah `.env` lagi. Cukup:
 - **Barang rusak saat datang ditolak**: isi "Jumlah ditolak" dan alasannya. Barang itu dikembalikan ke pengirim, tidak masuk stok, tetapi tetap tercatat. Kalau semua ditolak, tidak ada batch, tetapi kejadiannya tercatat di Riwayat Aktivitas.
 - **Barang terjual** (tanpa alasan) dicatat **per produk**, misalnya rekap kasir harian: pilih produk, **tanggal penjualan** (hari ini atau sampai 7 hari lalu), isi total terjual. Sistem otomatis mengurangi stok dari batch yang **paling cepat kedaluwarsa** (FEFO), lanjut ke batch berikutnya bila kurang. Barang **Expired atau rusak tidak pernah ikut terjual**. Bisa juga lewat **Impor File** rekap penjualan (kode produk + jumlah).
 - **Pemeriksaan fisik** (Staff dan Supervisor): jumlah fisik, kondisi produk, kondisi kemasan, **berapa yang rusak**, **tanggal di kemasan sesuai atau tidak**, catatan. Pemeriksaan tidak mengubah stok.
-- **Jadwal cek fisik**: Critical dicek tiap hari, Near Expired tiap 3 hari, lainnya tiap 7 hari. Yang sudah waktunya muncul di **Pantau Kedaluwarsa → Perlu dicek**, di dashboard Staff, dan di lonceng Staff.
+- **Jadwal cek fisik**: Critical dicek tiap 3 hari, lainnya tiap 14 hari. Yang sudah waktunya muncul di **Pantau Kedaluwarsa → Perlu dicek**, di dashboard Staff, dan di lonceng Staff.
 - **Barang rusak dihitung per buah** (standar ritel): kalau 2 dari 24 botol penyok, hanya 2 itu yang harus diretur/dimusnahkan; 22 lainnya tetap boleh dijual.
 - **Koreksi tanggal kedaluwarsa**: kalau tanggal di kemasan berbeda dengan yang tercatat, cek fisik mengirim usulan; **Supervisor lain** menyetujui atau menolak; tanggal lama tetap tersimpan di riwayat.
 - **Penyesuaian stok**: bila hasil hitung berbeda, Staff menekan **"Samakan stok"** dan stok langsung disesuaikan tanpa persetujuan. Jumlahnya otomatis dari selisih, satu pemeriksaan hanya bisa dipakai sekali, dan ditolak bila stok sudah berubah sejak pemeriksaan. Setiap penyesuaian **muncul di lonceng Supervisor dan Admin** (paling lama 7 hari) dan hilang setelah Supervisor mengecek fisik kiriman itu, jadi selalu diawasi.
-- **Status kedaluwarsa** dihitung otomatis per batch (zona waktu Jakarta): Normal (> 30 hari), Monitoring (15–30), Near Expired (8–14), Critical (1–7), **Expired (0 hari atau lewat)**. Barang tidak boleh dijual pada tanggal kedaluwarsanya.
+- **Status kedaluwarsa** dihitung otomatis per batch (zona waktu Jakarta): Normal (> 90 hari), Monitoring (31–90), Critical (1–30, yaitu 1 bulan terakhir), **Expired (0 hari atau lewat)**. Barang tidak boleh dijual pada tanggal kedaluwarsanya.
 - **Monitoring kedaluwarsa**: daftar batch Monitoring sampai Expired yang masih berstok, yang terdekat di atas.
-- **Saran Tindakan** (rekomendasi) berbasis aturan (bukan AI), satu per batch, lengkap dengan alasan: ambil dari rak dan ajukan penanganan (Expired), pisahkan barang rusak, segera tangani (Critical), jual lebih dulu (Near Expired), pantau (Monitoring), atau tidak perlu tindakan (Normal). **Tidak ada diskon.**
+- **Saran Tindakan** (rekomendasi) berbasis aturan (bukan AI), satu per batch, lengkap dengan alasan: ambil dari rak dan ajukan penanganan (Expired), pisahkan barang rusak, segera tangani (Critical), pantau (Monitoring), atau tidak perlu tindakan (Normal). **Tidak ada diskon.**
 - **Lapor barang rusak langsung**: Staff yang menemukan barang rusak (termasuk dari produk yang belum kedaluwarsa) cukup membuka **Pengajuan > + Ajukan**, memilih produk dan kiriman, memilih **Lapor barang rusak**, lalu mengisi jumlah dan alasan. Jumlah itu langsung **ditahan** (tidak bisa dijual) sampai pengajuannya selesai atau ditolak. Tidak perlu Cek Fisik dulu.
-- **Pengajuan retur/pemusnahan** (urutan ala ritel: **jual → retur → musnahkan**): untuk **barang Expired** (seluruh batch), **barang rusak** (semua yang rusak), atau barang **Near Expired/Critical** yang masih bagus (boleh sebagian, **hanya retur**, karena barang layak tidak dimusnahkan). Staff mengajukan → Supervisor menyetujui atau menolak (alasan wajib) → barang ditangani di luar aplikasi → Staff mana pun menandai **Selesai** dengan **keterangan bukti wajib** (retur: pemasok dan nomor dokumen; pemusnahan: cara dan saksi) → sistem **otomatis** mencatat stok keluar. Pengajuan tidak bisa bertumpuk: barang Expired baru bisa diajukan setelah pengajuan lain di batch yang sama selesai atau dibatalkan. Pengajuan bisa **dibatalkan** (oleh pengaju saat masih menunggu, atau oleh Supervisor setelah disetujui). Setiap langkah tercatat di riwayat.
+- **Pengajuan retur/pemusnahan** (urutan ala ritel: **jual → retur → musnahkan**): untuk **barang Expired** (seluruh batch), **barang rusak** (semua yang rusak), atau barang **Critical** yang masih bagus (boleh sebagian, **hanya retur**, karena barang layak tidak dimusnahkan). Staff mengajukan → Supervisor menyetujui atau menolak (alasan wajib) → barang ditangani di luar aplikasi → Staff mana pun menandai **Selesai** dengan **keterangan bukti wajib** (retur: pemasok dan nomor dokumen; pemusnahan: cara dan saksi) → sistem **otomatis** mencatat stok keluar. Pengajuan tidak bisa bertumpuk: barang Expired baru bisa diajukan setelah pengajuan lain di batch yang sama selesai atau dibatalkan. Pengajuan bisa **dibatalkan** (oleh pengaju saat masih menunggu, atau oleh Supervisor setelah disetujui). Setiap langkah tercatat di riwayat.
 - **Tombol Panduan** (di atas, sebelah lonceng): tugas sehari-hari sesuai peran yang sedang login dan di menu mana mengerjakannya, plus arti status kedaluwarsa. Setiap form utama juga punya keterangan singkat di bagian atas dan petunjuk di bawah isian.
 - **Notifikasi lonceng** (di dalam aplikasi, bukan email/WhatsApp): Supervisor melihat pengajuan yang menunggu, usulan koreksi tanggal, dan penyesuaian stok yang belum dicek ulang; Admin melihat penyesuaian stok yang belum dicek ulang; Staff melihat pengajuan yang disetujui tapi belum selesai dan pengajuannya yang ditolak.
 - **Dashboard**: produk aktif, stok yang boleh dijual, jumlah batch per status, pengajuan menunggu, **stok menipis**, **barang rusak**, (Supervisor/Admin) penyesuaian 7 hari, (Supervisor) koreksi tanggal menunggu, dan (Staff) pengajuan yang belum diselesaikan.
@@ -238,7 +238,7 @@ Prinsipnya **pemisahan tugas**: yang mencatat (Staff) berbeda dengan yang menyet
 
 1. **Admin menyiapkan** akun dan master produk.
 2. **Barang datang**: Staff mencatat stok masuk. Sistem membuat **batch baru** dengan nomor otomatis dan mencatat "stok masuk".
-3. **Status kedaluwarsa dihitung otomatis** setiap halaman dibuka: **Normal** (lebih dari 30 hari), **Monitoring** (15–30), **Near Expired** (8–14), **Critical** (1–7), **Expired** (0 hari atau lewat). Pada tanggal kedaluwarsanya, barang sudah Expired dan tidak boleh dijual.
+3. **Status kedaluwarsa dihitung otomatis** setiap halaman dibuka: **Normal** (lebih dari 90 hari), **Monitoring** (31–90, dipantau berkala), **Critical** (1–30, satu bulan terakhir), **Expired** (0 hari atau lewat). Pada tanggal kedaluwarsanya, barang sudah Expired dan tidak boleh dijual.
 4. **Barang terjual**: Staff mencatat total terjual per produk (misalnya dari rekap kasir). Sistem mengurangi stok dari batch yang paling cepat kedaluwarsa (**FEFO** = *First Expired, First Out*). Barang Expired atau rusak tidak ikut terjual. Bila stok sama atau di bawah **stok minimum**, produk masuk daftar **stok menipis**.
 5. **Pemeriksaan fisik**: petugas menghitung barang, mengecek kondisinya (berapa yang rusak), dan mencocokkan tanggal di kemasan. Pemeriksaan tidak mengubah stok. Kalau jumlahnya berbeda, Staff menekan **"Samakan stok"** (tanpa izin, tetapi Supervisor dan Admin diberi tahu). Kalau tanggal di kemasan berbeda, Supervisor yang memutuskan koreksinya.
 6. **Saran Tindakan**: aplikasi memberi saran dari **aturan sederhana** (bukan AI), misalnya Expired → ambil dari rak dan ajukan retur/pemusnahan; kemasan rusak → pisahkan. Setiap saran ada alasannya. Rekomendasi tidak mengubah apa pun.
@@ -247,7 +247,7 @@ Prinsipnya **pemisahan tugas**: yang mencatat (Staff) berbeda dengan yang menyet
    - Supervisor **menyetujui** (*Disetujui*) atau **menolak** (*Ditolak*, alasan wajib).
    - Barang **ditangani di luar aplikasi** (dibuang atau dikembalikan ke pemasok).
    - Staff mana pun menandai **Selesai**, mengisi jumlah yang benar-benar ditangani, dan **keterangan bukti** (retur: ke pemasok mana dan nomor dokumennya; pemusnahan: caranya dan siapa saksinya), seperti berita acara sederhana. Sistem **otomatis mencatat stok keluar**.
-   - **Kenapa pemusnahan jadi pilihan terakhir?** Di ritel, barang yang dibuang adalah kerugian toko. Jadi urutannya: **jual dulu** (FEFO) → kalau tidak akan laku, **retur ke pemasok** selagi masih layak (kerugian bisa ditanggung pemasok sesuai perjanjian) → **musnahkan** hanya barang yang sudah Expired atau rusak. Aplikasi ini membantu menekan pemusnahan lewat peringatan sejak 30 hari sebelum kedaluwarsa.
+   - **Kenapa pemusnahan jadi pilihan terakhir?** Di ritel, barang yang dibuang adalah kerugian toko. Jadi urutannya: **jual dulu** (FEFO) → kalau tidak akan laku, **retur ke pemasok** selagi masih layak (kerugian bisa ditanggung pemasok sesuai perjanjian) → **musnahkan** hanya barang yang sudah Expired atau rusak. Aplikasi ini membantu menekan pemusnahan lewat peringatan sejak 3 bulan sebelum kedaluwarsa.
    - Kalau tidak jadi, pengajuan bisa **Dibatalkan**.
    - Semua langkah tercatat di **riwayat** (siapa, kapan, catatannya).
 8. **Laporan dan riwayat aktivitas**: Supervisor dan Admin melihat 9 laporan, mengekspornya ke Excel, dan melihat siapa melakukan apa.
@@ -272,7 +272,7 @@ Prinsipnya **pemisahan tugas**: yang mencatat (Staff) berbeda dengan yang menyet
 - **7 koleksi** (mirip tabel): `master_karyawan` (akun dan peran), `master_product` (produk), `batches`, `stock_movements`, `inspections`, `handling_requests`, `audit_logs`. Tidak ada koleksi lokasi (satu outlet), notifikasi, atau pengaturan.
 
 **Pengujian**
-- **pytest** dan **mongomock** (database tiruan di memori): 265 tes otomatis tanpa koneksi Atlas.
+- **pytest** dan **mongomock** (database tiruan di memori): 264 tes otomatis tanpa koneksi Atlas.
 
 ### G5. Bagaimana tampilan dan server "ngobrol"?
 
@@ -310,7 +310,7 @@ Prinsipnya **pemisahan tugas**: yang mencatat (Staff) berbeda dengan yang menyet
 | **FE Webix** (opsional) | Ada | `public/static/js/*.js` dan `public/static/vendor/webix` |
 | **UI responsive** (opsional) | Ada | Laptop: sidebar + tabel. HP: menu laci + kartu per baris (ukuran dipilih saat halaman dibuka) |
 | **Indexing MongoDB** (opsional) | Ada | `app/indexes.py`: indeks **teks** (cari produk), **majemuk** (FEFO, monitoring, riwayat), dan **unik** (email, SKU, nomor batch, nomor pengajuan, serta pencegah transaksi ganda) |
-| **Unit testing** (opsional) | Ada | Folder `tests/`, dijalankan dengan `py -m pytest -q` (265 tes) |
+| **Unit testing** (opsional) | Ada | Folder `tests/`, dijalankan dengan `py -m pytest -q` (264 tes) |
 
 ### G7. Beberapa istilah yang mungkin ditanyakan
 

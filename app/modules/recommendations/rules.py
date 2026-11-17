@@ -6,9 +6,8 @@ Setiap batch dengan stok > 0 mendapat TEPAT SATU rekomendasi: aturan pertama yan
                                                     untuk barang rusak itu; sisanya tetap boleh dijual
   3. Critical                                    -> Prioritaskan penanganan: keluarkan lebih dulu (FEFO); bila tidak
                                                     akan terjual, retur ke pemasok selagi masih layak
-  4. Near Expired                                -> Prioritaskan penjualan berdasarkan FEFO
-  5. Monitoring                                  -> Pantau dan prioritaskan penjualan berdasarkan FEFO
-  6. Normal                                      -> Tidak membutuhkan tindakan khusus
+  4. Monitoring                                  -> Pantau dan prioritaskan penjualan berdasarkan FEFO
+  5. Normal                                      -> Tidak membutuhkan tindakan khusus
 
 Tidak ada rekomendasi diskon. Rekomendasi hanya SARAN: tidak mengubah stok dan tidak menjalankan tindakan.
 """
@@ -21,9 +20,8 @@ ACTIONS = {
     "withdraw": (1, "Ambil dari rak, ajukan penanganan", True),
     "separate": (2, "Pisahkan barang rusak", True),
     "prioritize_handling": (3, "Segera tangani", False),
-    "prioritize_sale": (4, "Jual lebih dulu", False),
-    "monitor_fefo": (5, "Pantau", False),
-    "no_action": (6, "Tidak perlu tindakan", False),
+    "monitor_fefo": (4, "Pantau", False),
+    "no_action": (5, "Tidak perlu tindakan", False),
 }
 
 CONDITION_TEXT = {"baik": "baik", "rusak": "rusak"}
@@ -91,9 +89,6 @@ def recommend(batch):
         return _result("prioritize_handling",
                        f"Sisa {days} hari. Taruh di depan rak supaya terjual lebih dulu.{check}{_fefo_text(batch)} "
                        "Bila tidak akan terjual sebelum kedaluwarsa, ajukan pengembalian ke pemasok selagi masih layak.")
-
-    if status == "near_expired":
-        return _result("prioritize_sale", f"Sisa {days} hari. Usahakan kiriman ini terjual lebih dulu.{_fefo_text(batch)}")
 
     if status == "monitoring":
         return _result("monitor_fefo", f"Sisa {days} hari. Pantau, dan jual yang paling cepat kedaluwarsa lebih dulu.{_fefo_text(batch)}")

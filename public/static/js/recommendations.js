@@ -10,7 +10,6 @@
     withdraw: "Ambil dari rak, ajukan penanganan",
     separate: "Pisahkan barang rusak",
     prioritize_handling: "Segera tangani",
-    prioritize_sale: "Jual lebih dulu",
     monitor_fefo: "Pantau",
     no_action: "Tidak perlu tindakan"
   };

@@ -1,4 +1,4 @@
-"""Daftar monitoring (SD 5.4): batch Monitoring, Near Expired, Critical, dan Expired yang stoknya > 0,
+"""Daftar monitoring (SD 5.4): batch Monitoring, Critical, dan Expired yang stoknya > 0,
 diurutkan dari sisa hari terkecil. Batch yang stoknya 0 tidak dipantau lagi.
 
 Tampilan khusus status=check_due: batch yang sudah waktunya dicek fisik menurut jadwal (SD 5.5 A),
@@ -11,7 +11,7 @@ from ...common.http import parse_enum, parse_object_id
 from ..batches import services as batch_services
 from . import services as expiry
 
-ALERT_STATUSES = ("monitoring", "near_expired", "critical", "expired")
+ALERT_STATUSES = ("monitoring", "critical", "expired")
 
 
 def alert_query(filters, today):
@@ -27,7 +27,7 @@ def alert_query(filters, today):
     return query
 
 
-STATUS_RANK = {"critical": 0, "near_expired": 1, "monitoring": 2, "normal": 3}
+STATUS_RANK = {"critical": 0, "monitoring": 1, "normal": 2}
 
 
 def due_for_check(db, today=None, product_id=None):

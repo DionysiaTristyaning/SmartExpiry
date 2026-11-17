@@ -16,14 +16,12 @@ ROLE_LABELS = {
 
 # ---------- batas status kedaluwarsa (SD 5.4) ----------
 # sisa_hari = tanggal kedaluwarsa - hari ini (WIB)
-#   > 30        -> normal
-#   15 .. 30    -> monitoring
-#   8 .. 14     -> near_expired
-#   1 .. 7      -> critical
-#   <= 0        -> expired  (barang tidak boleh dijual pada tanggal kedaluwarsanya)
-MONITORING_DAYS = 30
-NEAR_EXPIRED_DAYS = 14
-CRITICAL_DAYS = 7
+#   > 90        -> normal
+#   31 .. 90    -> monitoring (perlu dipantau berkala, sekitar 2-3 bulan sebelum kedaluwarsa)
+#   1 .. 30     -> critical   (1 bulan terakhir; pembeli umumnya sudah enggan membeli)
+#   <= 0        -> expired    (barang tidak boleh dijual pada tanggal kedaluwarsanya)
+MONITORING_DAYS = 90
+CRITICAL_DAYS = 30
 
 # ---------- keamanan login (SD 11.1) ----------
 # Setelah MAX_FAILED_LOGINS kali salah password berturut-turut, akun dikunci sementara selama LOGIN_LOCK_MINUTES.
@@ -46,8 +44,7 @@ ADJUSTMENT_NOTICE_DAYS = 7
 # Tanggal barang datang dihitung sebagai cek pertama (barang diperiksa saat diterima).
 # Batch Expired tidak dijadwalkan: barangnya harus ditarik dan diajukan retur/pemusnahan.
 CHECK_INTERVAL_DAYS = {
-    "critical": 1,
-    "near_expired": 3,
-    "monitoring": 7,
-    "normal": 7,
+    "critical": 3,
+    "monitoring": 14,
+    "normal": 14,
 }

@@ -26,7 +26,6 @@ def _insp(fit, product="baik", packaging="baik"):
     (_b("normal", 90, _insp(False, "rusak")), "separate"),
     (_b("critical", 3), "prioritize_handling"),
     (_b("critical", 3, _insp(True)), "prioritize_handling"),
-    (_b("near_expired", 10), "prioritize_sale"),
     (_b("monitoring", 20), "monitor_fefo"),
     (_b("normal", 45), "no_action"),
 ])
@@ -37,7 +36,7 @@ def test_rule_order(batch, action):
 def test_no_discount_anywhere():
     labels = " ".join(label for _, label, _ in ACTIONS.values()).lower()
     assert "diskon" not in labels
-    for status, days in (("critical", 3), ("near_expired", 10), ("expired", 0)):
+    for status, days in (("critical", 3), ("monitoring", 60), ("expired", 0)):
         assert "diskon" not in recommend(_b(status, days))["reason"].lower()
 
 

@@ -1,10 +1,9 @@
 """Status kedaluwarsa dan kelayakan batch. Keduanya TIDAK disimpan: selalu dihitung saat data dibaca (SD 5.4).
 
 Batas status ditetapkan di kode (app/common/constants.py):
-    sisa > 30 hari        -> normal
-    15 sampai 30 hari     -> monitoring
-    8 sampai 14 hari      -> near_expired
-    1 sampai 7 hari       -> critical
+    sisa > 90 hari        -> normal
+    31 sampai 90 hari     -> monitoring
+    1 sampai 30 hari      -> critical
     0 hari atau kurang    -> expired   (barang tidak boleh dijual pada tanggal kedaluwarsanya)
 
 Kelayakan (SD 5.5 A) ditentukan dari PEMERIKSAAN TERAKHIR dan jumlah barang rusak yang belum ditangani:
@@ -20,15 +19,14 @@ Barang rusak (standar ritel: dipisahkan PER BUAH, bukan per batch):
 """
 from datetime import date, timedelta
 
-from ...common.constants import CHECK_INTERVAL_DAYS, CRITICAL_DAYS, MONITORING_DAYS, NEAR_EXPIRED_DAYS
+from ...common.constants import CHECK_INTERVAL_DAYS, CRITICAL_DAYS, MONITORING_DAYS
 from ...common.dates import JAKARTA
 
-STATUSES = ("normal", "monitoring", "near_expired", "critical", "expired")
+STATUSES = ("normal", "monitoring", "critical", "expired")
 
 STATUS_LABELS = {
     "normal": "Aman",
-    "monitoring": "Dipantau",
-    "near_expired": "Hampir Kedaluwarsa",
+    "monitoring": "Perlu Dipantau",
     "critical": "Kritis",
     "expired": "Kedaluwarsa",
 }
@@ -52,8 +50,6 @@ def status_for_days(days):
         return "expired"
     if days <= CRITICAL_DAYS:
         return "critical"
-    if days <= NEAR_EXPIRED_DAYS:
-        return "near_expired"
     if days <= MONITORING_DAYS:
         return "monitoring"
     return "normal"
@@ -73,10 +69,8 @@ def expiry_date_filter(status, today):
         return {"$lte": iso(0)}
     if status == "critical":
         return {"$gt": iso(0), "$lte": iso(CRITICAL_DAYS)}
-    if status == "near_expired":
-        return {"$gt": iso(CRITICAL_DAYS), "$lte": iso(NEAR_EXPIRED_DAYS)}
     if status == "monitoring":
-        return {"$gt": iso(NEAR_EXPIRED_DAYS), "$lte": iso(MONITORING_DAYS)}
+        return {"$gt": iso(CRITICAL_DAYS), "$lte": iso(MONITORING_DAYS)}
     if status == "normal":
         return {"$gt": iso(MONITORING_DAYS)}
     raise ValueError(status)
@@ -167,7 +161,7 @@ def request_options(status, current, damaged, held=0):
     - damaged (langsung, `direct`): barang rusak BELUM dicatat -> Staff melaporkan sendiri jumlahnya di form
                     Ajukan (paling banyak stok yang belum ditahan). Jumlah itu DITAHAN (`held`: tidak bisa dijual)
                     selama pengajuannya Menunggu/Disetujui. Berlaku untuk batch apa pun yang belum Expired.
-    - near_expiry : batch Near Expired / Critical -> sebagian atau seluruh barang yang masih bagus, HANYA retur
+    - near_expiry : batch Critical (1 bulan terakhir) -> sebagian atau seluruh barang yang masih bagus, HANYA retur
                     (urutan ritel: jual -> retur -> musnahkan; barang layak tidak dibuang).
     `damaged` = rusak tercatat yang belum ditangani; `held` = jumlah laporan rusak langsung yang masih terbuka.
     """
@@ -182,6 +176,6 @@ def request_options(status, current, damaged, held=0):
         options.append({"basis": "damaged", "quantity": current - held, "fixed": False, "direct": True,
                         "types": ["return", "disposal"]})
     good = current - max(damaged, held)
-    if status in ("near_expired", "critical") and good > 0:
+    if status == "critical" and good > 0:
         options.append({"basis": "near_expiry", "quantity": good, "fixed": False, "types": ["return"]})
     return options

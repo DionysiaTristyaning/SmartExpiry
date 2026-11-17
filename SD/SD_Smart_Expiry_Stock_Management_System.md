@@ -24,8 +24,7 @@
 |---|---|
 | Batch (`batch_number`, koleksi `batches`) | **Kiriman** (menu **Stok Barang**) |
 | Normal | **Aman** |
-| Monitoring | **Dipantau** |
-| Near Expired | **Hampir Kedaluwarsa** |
+| Monitoring | **Perlu Dipantau** |
 | Critical | **Kritis** |
 | Expired | **Kedaluwarsa** |
 | Retur (`return`) | **Pengembalian** (ke pemasok) |
@@ -159,7 +158,7 @@ Kartu ringkasan (semua peran melihat angka yang sama karena hanya ada satu outle
 | Total stok tersedia | Jumlah stok yang **boleh dijual**: batch belum Expired, dikurangi barang rusak yang belum ditangani. |
 | Stok menipis | Jumlah produk aktif yang stok minimumnya diisi (> 0) dan stok yang boleh dijual ≤ stok minimum. |
 | Barang rusak | Jumlah barang rusak (dari cek fisik) yang belum diretur/dimusnahkan. |
-| Batch Normal / Monitoring / Near Expired / Critical / Expired | Jumlah batch per status, **hanya batch dengan stok > 0**. Batch yang stoknya sudah 0 tidak dipantau lagi. |
+| Batch Normal / Monitoring / Critical / Expired | Jumlah batch per status, **hanya batch dengan stok > 0**. Batch yang stoknya sudah 0 tidak dipantau lagi. |
 | Pengajuan menunggu persetujuan | Jumlah pengajuan berstatus Menunggu. |
 
 Tambahan sesuai peran:
@@ -282,17 +281,16 @@ Status dihitung **per batch**, bukan per produk.
 
 | Status | Kode | Sisa hari | Warna |
 |---|---|---|---|
-| Normal | `normal` | > 30 | Hijau |
-| Monitoring | `monitoring` | 15 sampai 30 | Biru |
-| Near Expired | `near_expired` | 8 sampai 14 | Kuning/oranye |
-| Critical | `critical` | 1 sampai 7 | Merah |
+| Normal | `normal` | > 90 | Hijau |
+| Monitoring | `monitoring` | 31 sampai 90 | Biru |
+| Critical | `critical` | 1 sampai 30 | Merah |
 | Expired | `expired` | ≤ 0 (hari ini atau sudah lewat) | Merah tua |
 
 Batas-batas ini tidak tumpang tindih dan menutup semua kemungkinan bilangan bulat.
 
 **Produk yang tanggal kedaluwarsanya tepat hari ini** (sisa 0 hari) berstatus **Expired** sejak pukul 00.00 WIB hari itu dan **tidak boleh dijual lagi**. Contoh: batch dengan tanggal kedaluwarsa 20 Nov masih Critical pada 19 Nov (sisa 1 hari) dan menjadi Expired mulai 20 Nov. Tampilan memberi label **"Kedaluwarsa hari ini"** untuk sisa 0 hari dan **"Lewat N hari"** untuk sisa negatif.
 
-*Catatan:* prompt revisi menulis Critical "0–7". Pemilik proyek kemudian memutuskan (12 Nov 2026) bahwa barang tidak boleh dijual pada tanggal kedaluwarsanya, sehingga sisa 0 hari dimasukkan ke Expired dan Critical menjadi 1–7.
+*Catatan:* prompt revisi menulis Critical "0–7". Pemilik proyek kemudian memutuskan (12 Nov 2026) bahwa barang tidak boleh dijual pada tanggal kedaluwarsanya, sehingga sisa 0 hari dimasukkan ke Expired. Pada 17 Nov 2026 pemilik mengubah batasnya agar sesuai kebiasaan pembeli (pembeli memeriksa tanggal kedaluwarsa dan enggan membeli barang yang tinggal 1–2 bulan): **Critical = 1 bulan terakhir (1–30 hari)**, **Monitoring = perlu dipantau berkala 2–3 bulan sebelum kedaluwarsa (31–90 hari)**, dan tingkat Near Expired dihapus (keputusan 32).
 
 Aturan:
 
@@ -300,7 +298,7 @@ Aturan:
 - Status **tidak disimpan** di database karena berubah setiap hari; status dihitung setiap kali data dibaca.
 - Batch yang stoknya 0 tidak ditampilkan di daftar peringatan dan tidak dihitung di dashboard. Datanya tetap ada untuk riwayat.
 - Batch Expired tidak dihapus otomatis.
-- Halaman Monitoring menampilkan batch Monitoring, Near Expired, Critical, dan Expired (stok > 0), urut dari sisa hari terkecil, dengan filter status dan produk.
+- Halaman Monitoring menampilkan batch Monitoring, Critical, dan Expired (stok > 0), urut dari sisa hari terkecil, dengan filter status dan produk.
 
 ## 5.5 Pemeriksaan dan Tindak Lanjut
 
@@ -320,7 +318,7 @@ Dicatat oleh Staff atau Supervisor untuk satu batch:
 | Waktu dan pemeriksa | Diisi otomatis oleh server. |
 
 - Setiap pemeriksaan adalah **catatan baru**; riwayat lama tidak ditimpa.
-- **Jadwal cek fisik** (keputusan 26): batch yang masih ada stoknya wajib dicek paling lambat **Critical tiap 1 hari, Near Expired tiap 3 hari, Monitoring dan Normal tiap 7 hari** (konstanta `CHECK_INTERVAL_DAYS`). Tanggal barang datang dihitung sebagai cek pertama karena barang diperiksa saat diterima. Batch Expired tidak dijadwalkan (harus ditarik dan diajukan). Batch yang sudah waktunya dicek muncul di tab **"Perlu dicek"** halaman Pantau Kedaluwarsa (paling mendesak di atas), kartu dashboard Staff "Perlu cek fisik", dan lonceng Staff. Jadwal dihitung saat dibaca, tidak disimpan. Ini sejalan dengan praktik *cycle count* ritel: barang berisiko diperiksa lebih sering.
+- **Jadwal cek fisik** (keputusan 26): batch yang masih ada stoknya wajib dicek paling lambat **Critical tiap 3 hari, Monitoring dan Normal tiap 14 hari** (konstanta `CHECK_INTERVAL_DAYS`). Tanggal barang datang dihitung sebagai cek pertama karena barang diperiksa saat diterima. Batch Expired tidak dijadwalkan (harus ditarik dan diajukan). Batch yang sudah waktunya dicek muncul di tab **"Perlu dicek"** halaman Pantau Kedaluwarsa (paling mendesak di atas), kartu dashboard Staff "Perlu cek fisik", dan lonceng Staff. Jadwal dihitung saat dibaca, tidak disimpan. Ini sejalan dengan praktik *cycle count* ritel: barang berisiko diperiksa lebih sering.
 - **Pemeriksaan tidak mengubah stok.** Bila ada selisih, aplikasi menampilkan selisihnya dan tombol "Sesuaikan stok" (hanya untuk Staff, lihat 5.3 C).
 - **Barang rusak dihitung per buah (standar ritel, keputusan 14 Nov 2026).** Di toko, barang rusak dipisahkan satu per satu (misalnya ke keranjang "barang BS"/*bad stock*), bukan seluruh batch. Jadi bila dari 24 botol ada 2 yang penyok, hanya 2 botol itu yang wajib diretur/dimusnahkan; 22 lainnya tetap boleh dijual.
 - **Jumlah rusak yang belum ditangani** = jumlah rusak pada pemeriksaan terakhir − jumlah yang sudah keluar lewat pengajuan "barang rusak" setelah pemeriksaan itu. **Stok yang boleh dijual** = stok − jumlah rusak (0 bila Expired). Keduanya dihitung saat dibaca, tidak disimpan.
@@ -335,8 +333,7 @@ Rekomendasi dihitung setiap kali halaman dibuka dan **tidak disimpan**. Setiap b
 | 1 | Expired | Tarik produk dari area penjualan dan ajukan retur atau pemusnahan sesuai prosedur. | "Sudah lewat tanggal kedaluwarsa 2 hari." |
 | 2 | Ada barang rusak yang belum ditangani | Pisahkan **barang yang rusak saja** dan ajukan retur atau pemusnahan untuk barang itu; sisanya tetap boleh dijual. | "Cek fisik 10 Nov: kemasan rusak. Ada 2 botol yang rusak … Sisanya (22 botol) masih bagus dan tetap boleh dijual." |
 | 3 | Critical | Prioritaskan penanganan: keluarkan batch ini lebih dulu (FEFO) dan pastikan kondisinya dengan pemeriksaan fisik. Bila tidak akan terjual sebelum kedaluwarsa, ajukan retur ke pemasok selagi masih layak. | "Sisa 3 hari. Pemeriksaan terakhir: layak. … ajukan retur ke pemasok selagi masih layak." |
-| 4 | Near Expired | Prioritaskan penjualan batch ini berdasarkan FEFO. | "Sisa 10 hari." |
-| 5 | Monitoring | Pantau dan prioritaskan penjualan berdasarkan FEFO. | "Sisa 20 hari; batch ini paling cepat kedaluwarsa untuk produk ini." |
+| 4 | Monitoring | Pantau dan prioritaskan penjualan berdasarkan FEFO. | "Sisa 20 hari; batch ini paling cepat kedaluwarsa untuk produk ini." |
 | 6 | Normal | Tidak membutuhkan tindakan khusus. | "Sisa 45 hari." |
 
 Aturan tambahan:
@@ -362,7 +359,7 @@ Pengajuan dipakai untuk **penanganan barang yang sudah kedaluwarsa, mendekati ke
 |---|---|---|---|
 | `expired` (Barang Expired) | Batch **Expired** | Retur **atau** Pemusnahan | **Wajib seluruh stok batch** (semua unit kedaluwarsa pada tanggal yang sama) |
 | `damaged` (Barang rusak) | Ada barang rusak yang belum ditangani (dari cek fisik) | Retur **atau** Pemusnahan | **Wajib semua barang rusak itu sekaligus** (jumlahnya tetap, dari cek fisik) |
-| `near_expiry` (Mendekati kedaluwarsa) | Batch **Near Expired** atau **Critical**, barang yang masih bagus | **Hanya Retur** (barang layak tidak dimusnahkan) | Boleh sebagian (1 sampai jumlah barang yang masih bagus) |
+| `near_expiry` (Mendekati kedaluwarsa) | Batch **Critical** (1 bulan terakhir), barang yang masih bagus | **Hanya Retur** (barang layak tidak dimusnahkan) | Boleh sebagian (1 sampai jumlah barang yang masih bagus) |
 | — | Normal atau Monitoring tanpa barang rusak | **Tidak boleh diajukan** | — |
 
 **Laporan barang rusak langsung (keputusan 31, 17 Nov 2026).** Barang rusak yang belum dicatat lewat Cek Fisik tetap boleh diajukan langsung di form Ajukan, untuk batch apa pun yang belum Expired. Staff mengisi jumlah (paling banyak stok yang belum ditahan), jenis tindakan, dan alasan. Jumlah itu **ditahan**: langsung tidak ikut stok yang boleh dijual selama pengajuan Menunggu atau Disetujui (field `held_quantity`; pengajuan menyimpan `damage_source = direct`). Bila ditolak atau dibatalkan, tahanan dilepas; bila Selesai, stok berkurang sebesar jumlah yang ditangani dan sisanya (bila lebih sedikit) dapat dijual lagi. Bila batch sudah punya rusak yang dicatat lewat Cek Fisik, yang ditawarkan tetap jumlah tercatat itu (semuanya sekaligus). Jumlah rusak yang berlaku adalah yang terbesar dari rusak tercatat dan tahanan, supaya barang yang sama tidak dihitung dua kali. Persetujuan Supervisor dan alasan tetap wajib; hanya Staff yang mengajukan.
@@ -412,7 +409,7 @@ Halaman **Laporan** (Supervisor dan Admin). Setiap laporan memiliki filter, mena
 |---|---|---|---|
 | 1 | Stok produk | Stok yang boleh dijual per produk, barang rusak, barang Expired, stok minimum + tanda menipis, kedaluwarsa terdekat | Kategori, status produk |
 | 2 | Stok per batch | `batches` + status dihitung | Produk, status kedaluwarsa, stok > 0 |
-| 3 | Produk mendekati kedaluwarsa | Batch Near Expired dan Critical, stok > 0 | Status, produk |
+| 3 | Produk mendekati kedaluwarsa | Batch Critical, stok > 0 | Status, produk |
 | 4 | Produk kedaluwarsa | Batch Expired, stok > 0 | Produk |
 | 5 | Riwayat stok masuk dan keluar | `stock_movements` jenis `stock_in`, `stock_out` | Rentang tanggal, produk, jenis |
 | 6 | Riwayat penyesuaian stok | `stock_movements` jenis `adjustment_in`, `adjustment_out` | Rentang tanggal, produk |
@@ -947,13 +944,13 @@ Logika bisnis diuji di lapisan service dengan pytest + mongomock. Tampilan diuji
 
 | # | Skenario | Hasil yang diharapkan |
 |---|---|---|
-| E1 | Sisa 31, 30, 15, 14, 8, 7, 1, 0, −1 hari | Normal, Monitoring, Monitoring, Near Expired, Near Expired, Critical, Critical, Expired ("kedaluwarsa hari ini"), Expired |
+| E1 | Sisa 91, 90, 60, 31, 30, 14, 7, 1, 0, −1 hari | Normal, Monitoring, Monitoring, Monitoring, Critical, Critical, Critical, Critical, Expired ("kedaluwarsa hari ini"), Expired |
 | E4 | Stok masuk dengan tanggal kedaluwarsa = hari ini | Ditolak |
 | E2 | Batas hari menurut WIB (misalnya 23.30 WIB = 16.30 UTC) | Memakai tanggal WIB |
 | E3 | Batch stok 0 | Tidak muncul di monitoring dan dashboard |
 | I1 | Pemeriksaan dengan selisih tanpa catatan | Ditolak |
 | I2 | Pemeriksaan tidak mengubah stok; pemeriksaan kedua tidak menimpa yang pertama | Benar |
-| I5 | Jadwal cek: Critical belum dicek 1 hari, Near Expired 2 hari, Normal 7 hari; batch Expired | Perlu dicek; belum; perlu dicek; tidak dijadwalkan. Setelah cek fisik, hilang dari daftar |
+| I5 | Jadwal cek: Critical belum dicek 3 hari, Critical 2 hari, Normal 14 hari; batch Expired | Perlu dicek; belum; perlu dicek; tidak dijadwalkan. Setelah cek fisik, hilang dari daftar |
 | I3 | 2 dari 100 rusak | Kondisi "sebagian rusak"; 98 boleh dijual; pengajuan barang rusak wajib tepat 2 |
 | I4 | Tanggal di kemasan berbeda | Usulan Menunggu; tanggal batch belum berubah; Staff/Admin/pemeriksa sendiri tidak dapat memutuskan; Supervisor lain menyetujui → tanggal berganti dan riwayat tersimpan |
 | R1 | Urutan aturan: Expired + rusak → aturan Expired; Critical + rusak → aturan rusak | Benar |
@@ -1021,7 +1018,7 @@ Logika bisnis diuji di lapisan service dengan pytest + mongomock. Tampilan diuji
 
 | # | Pertanyaan | Keputusan | Bagian |
 |---|---|---|---|
-| 1 | Pada tanggal kedaluwarsa itu sendiri, apakah barang masih boleh dijual? | **Tidak.** Sisa 0 hari = Expired; Critical = 1–7 hari. | 5.4 |
+| 1 | Pada tanggal kedaluwarsa itu sendiri, apakah barang masih boleh dijual? | **Tidak.** Sisa 0 hari = Expired; Critical = 1–30 hari. | 5.4 |
 | 2 | Bolehkah Supervisor mengoreksi tanggal kedaluwarsa? | ~~Tidak ada fitur koreksi~~ — **diganti keputusan 22** (14 Nov): Supervisor hanya *menyetujui* usulan dari cek fisik, tidak mengetik tanggal sendiri. | 5.3 A, 5.3 E, 14 |
 | 5 | Apakah ada diskon? | **Tidak ada diskon.** Aplikasi menyimpan harga jual produk sebagai informasi. | 3, 5.2, 5.5 |
 | 6 | Bolehkah penerimaan barang yang sudah kedaluwarsa dicatat? | **Tidak.** | 5.3 A, 9.4 |
@@ -1030,10 +1027,10 @@ Logika bisnis diuji di lapisan service dengan pytest + mongomock. Tampilan diuji
 | 3 | Siapa yang boleh menandai pengajuan Selesai? | **Staff mana pun**, agar tidak macet bila pengaju tidak bertugas. Nama yang menyelesaikan tetap tercatat. | 5.5 C, 7.8 |
 | 4 | Apakah status **Dibatalkan** boleh ada? | **Ya.** Pengaju dapat membatalkan saat Menunggu; Supervisor dapat membatalkan saat Disetujui (alasan wajib). | 5.5 C |
 | 9 | Siapa yang boleh mencatat pemeriksaan fisik? | **Staff dan Supervisor.** Supervisor memeriksa sebagai cek silang, tetapi tidak mencatat atau mengubah stok. | 4.2, 5.5 A |
-| 10 | Batch mana yang boleh diajukan retur/pemusnahan? (13 Nov) | **Hanya Near Expired, Critical, Expired, atau rusak.** Batch Normal/Monitoring yang layak ditolak. | 5.5 C |
+| 10 | Batch mana yang boleh diajukan retur/pemusnahan? (13 Nov) | **Hanya Critical, Expired, atau rusak.** Batch Normal/Monitoring yang layak ditolak. | 5.5 C |
 | 11 | Bila sebagian batch rusak? (13 Nov) | ~~Satu batch, satu penanganan~~ — **diganti keputusan 19** (14 Nov). | 5.5 C, 7 |
 | 12 | Apakah pengajuan mengunci stok? (13 Nov) | **Tidak.** Dibiarkan; jumlah saat Selesai dibatasi stok saat itu. | 5.5 C |
-| 13 | Bagaimana agar pemusnahan tidak merugikan toko berlebihan? (14 Nov) | **Urutan jual → retur → musnahkan.** Pemusnahan hanya untuk batch Expired/rusak; batch layak (Near Expired/Critical) hanya boleh retur; rekomendasi Critical menyarankan retur selagi layak. | 5.5 B, 5.5 C |
+| 13 | Bagaimana agar pemusnahan tidak merugikan toko berlebihan? (14 Nov) | **Urutan jual → retur → musnahkan.** Pemusnahan hanya untuk batch Expired/rusak; batch layak (Critical) hanya boleh retur; rekomendasi Critical menyarankan retur selagi layak. | 5.5 B, 5.5 C |
 | 14 | Bukti penanganan? (14 Nov) | **Keterangan wajib saat Selesai**: retur → pemasok dan nomor dokumen; pemusnahan → cara dan saksi. | 5.5 C |
 | 15 | Estimasi nilai kerugian dari harga jual? (14 Nov) | **Tidak dibuat.** Kerugian toko dihitung dari harga beli, yang tidak disimpan aplikasi; menampilkan angka dari harga jual akan menyesatkan. | 3 |
 
@@ -1056,7 +1053,8 @@ Logika bisnis diuji di lapisan service dengan pytest + mongomock. Tampilan diuji
 | 29 | Rekap penjualan dicatat besok paginya? | **Ada tanggal penjualan** (hari ini sampai 7 hari ke belakang). | 5.3 B |
 | 30 | Pengajuan bisa bertumpuk? | **Tidak**: pengajuan Barang Expired menunggu pengajuan lain di batch itu selesai/dibatalkan. Laporan *shrink* terpisah tidak dibuat (fokus manajemen stok; data ada di riwayat pengajuan dan penyesuaian). | 5.5 C |
 | 31 | Barang rusak di batch yang belum kedaluwarsa? | **Boleh diajukan langsung** di form Ajukan tanpa Cek Fisik; jumlahnya **ditahan** (tidak bisa dijual) selama pengajuan terbuka. | 5.5 |
-| 26 | Jadwal cek fisik? | **Ada**: Critical tiap hari, Near Expired tiap 3 hari, lainnya tiap 7 hari; daftar "Perlu dicek". | 5.5 A |
+| 32 | Batas status kedaluwarsa terlalu pendek? (17 Nov) | **Diubah.** Critical = 1 bulan terakhir (1–30 hari); Monitoring = perlu dipantau berkala (31–90 hari); tingkat "Hampir Kedaluwarsa" dihapus. Jadwal cek: Critical tiap 3 hari, lainnya tiap 14 hari. Alasan: pembeli sering menolak barang yang kedaluwarsanya tinggal 1–2 bulan, dan batas 7 hari terlalu mepet untuk retur. Keterbatasan: barang dengan masa simpan pendek (roti, yogurt) langsung Critical saat datang. | 5.4, 5.5 |
+| 26 | Jadwal cek fisik? | **Ada**: Critical tiap 3 hari, lainnya tiap 14 hari (direvisi 17 Nov, keputusan 32); daftar "Perlu dicek". | 5.5 A |
 
 **Tidak ada pertanyaan terbuka yang tersisa.** Rancangan ini siap dipakai sebagai acuan implementasi.
 
@@ -1074,7 +1072,7 @@ Perubahan yang dilakukan dibanding versi 1.x:
 | Peran | `staff_location`, `supervisor_location`, `system_admin` | `staff`, `supervisor`, `admin` |
 | Admin | Ikut menyetujui pengajuan dan mencatat stok | Hanya administrasi dan melihat |
 | Supervisor | Mencatat stok; mengelola produk | Tidak mencatat stok; hak produk sama dengan Admin; menyetujui |
-| Batas kedaluwarsa | Disimpan di `settings`, dapat diubah Admin; Critical 1–7, Expired ≤ 0 | Konstanta di kode; batas hari tetap sama (Critical 1–7, Expired ≤ 0) |
+| Batas kedaluwarsa | Disimpan di `settings`, dapat diubah Admin; Critical 1–7, Expired ≤ 0 | Konstanta di kode (sejak 17 Nov: Critical 1–30, Monitoring 31–90, Expired ≤ 0) |
 | Nomor batch | Diketik pengguna, unik per produk + lokasi | Dibuat sistem `BT-YYMMDD-NNN` |
 | Ubah data batch (tanggal) | Dapat diubah di halaman detail | Tidak dapat diubah; ada layar konfirmasi sebelum simpan |
 | Produk | Tanpa harga, ada merek | Ada harga jual (informasi), tanpa merek |

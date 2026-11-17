@@ -5,7 +5,7 @@
 
   var esc = SE.esc;
 
-  var FILL = { normal: "#3fb27f", monitoring: "#5b8def", near_expired: "#f2b134", critical: "#ef6a5b", expired: "#b8322f" };
+  var FILL = { normal: "#3fb27f", monitoring: "#5b8def", critical: "#ef6a5b", expired: "#b8322f" };
 
   function greeting() {
     var hour = Number(new Date().toLocaleString("en-GB", { timeZone: "Asia/Jakarta", hour: "2-digit", hour12: false })) % 24;

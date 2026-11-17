@@ -177,7 +177,7 @@
       }
       /* Barang terjual dicatat per produk di halaman Keluar-Masuk Stok (sistem memilih batch otomatis). */
       if (SE.isStaff() && b.current_quantity > 0) {
-        if (SE.requestable(b).length) {  // hanya barang Expired, rusak, atau batch Near Expired/Critical yang belum diajukan
+        if (SE.requestable(b).length) {  // hanya barang Expired, rusak, atau batch Critical yang belum diajukan
           buttons.push({ view: "button", value: "Ajukan pengembalian/pemusnahan", css: "webix_primary", width: 200,
             click: function () { SE.openRequestForm(b, null, reopen); } });
         } else if ((b.open_requests || []).length) {

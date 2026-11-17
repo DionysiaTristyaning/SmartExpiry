@@ -142,7 +142,6 @@ a:focus-visible, button:focus-visible, input:focus-visible, .card-link:focus-vis
 /* ================= Warna status (tiga variabel per status) ================= */
 .st-normal       { --c: #166534; --bg: #e7f6ec; --bd: #b8e2c5; }
 .st-monitoring   { --c: #1e40af; --bg: #e8effd; --bd: #bfd0f7; }
-.st-near_expired { --c: #8a4b06; --bg: #fff3d9; --bd: #f1d391; }
 .st-critical     { --c: #b91c1c; --bg: #fdeaea; --bd: #f3b9b9; }
 .st-expired      { --c: #7f1d1d; --bg: #f6d4d4; --bd: #e2a1a1; }
 .st-total        { --c: #182f94; --bg: #eaeefc; --bd: #c9d3f7; }
@@ -164,7 +163,6 @@ a:focus-visible, button:focus-visible, input:focus-visible, .card-link:focus-vis
 .ac-withdraw            { --c: #7f1d1d; --bg: #f6d4d4; --bd: #e2a1a1; }
 .ac-separate            { --c: #b91c1c; --bg: #fdeaea; --bd: #f3b9b9; }
 .ac-prioritize_handling { --c: #8a4b06; --bg: #fff3d9; --bd: #f1d391; }
-.ac-prioritize_sale     { --c: #1e40af; --bg: #e8effd; --bd: #bfd0f7; }
 .ac-monitor_fefo        { --c: #166534; --bg: #e7f6ec; --bd: #b8e2c5; }
 .ac-no_action           { --c: #475569; --bg: #eef1f5; --bd: #d3dae3; }
 
