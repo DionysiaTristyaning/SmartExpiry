@@ -1,0 +1,57 @@
+# Rahasia - jangan pernah di-commit
+.env
+.env.*
+!.env.example
+
+# Lingkungan virtual (dibuat ulang di tiap komputer)
+venv/
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+instance/
+build/
+dist/
+
+# Hasil alat bantu tes / pemeriksa kode
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# Log dan paket kirim (zip)
+*.log
+*.zip
+
+# Hasil ekspor Excel/CSV yang tersimpan di folder project (berisi data usaha, jangan ikut) dan file kunci sementara Excel
+*.xlsx
+*.xls
+~$*
+
+# Sertifikat dan kunci pribadi (rahasia)
+*.pem
+*.key
+*.p12
+
+# Unggahan sementara
+uploads/
+
+# Editor / OS
+.vscode/
+.idea/
+*.code-workspace
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Catatan kerja pribadi dan pengaturan alat (bukan bagian aplikasi)
+CLAUDE.md
+.claude/
+
+# Cadangan dan file sementara
+*.bak
+*.tmp
+*.swp

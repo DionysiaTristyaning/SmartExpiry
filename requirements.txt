@@ -1,0 +1,11 @@
+# === Untuk menjalankan aplikasi ===
+Flask==3.1.3
+Flask-WTF==1.3.0          # perlindungan CSRF
+Werkzeug==3.1.9           # dipakai langsung (hash password); ikut terpasang bersama Flask, ditulis eksplisit agar jelas
+pymongo==4.19.0           # koneksi ke MongoDB Atlas (sudah termasuk modul "bson")
+dnspython==2.9.2          # wajib untuk alamat Atlas berawalan mongodb+srv://; ikut terpasang bersama pymongo
+python-dotenv==1.2.4      # membaca file .env
+
+# === Hanya untuk tes otomatis (tidak dipakai saat aplikasi berjalan) ===
+pytest==9.2.0
+mongomock==4.3.0          # database tiruan di memori untuk tes
