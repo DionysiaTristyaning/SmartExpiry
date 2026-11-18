@@ -739,7 +739,7 @@ Satu baris = satu produk + total terjual (misalnya dari rekap kasir) + `sale_dat
 
 | Aspek | Aturan |
 |---|---|
-| File | Ekstensi `.csv`, maksimal 1 MB dan 1.000 baris data, encoding UTF-8 (BOM diterima), pemisah koma. |
+| File | Ekstensi `.csv`, maksimal 1 MB dan 1.000 baris data, encoding UTF-8 (BOM diterima), pemisah koma atau titik koma (dikenali dari baris judul; baris `sep=` di paling atas diabaikan). File contoh memakai titik koma dan baris `sep=;` supaya langsung terpisah rapi di Excel berbahasa Indonesia. |
 | Header | Harus persis sama dengan template (urutan bebas); kolom wajib tidak boleh hilang; nama kolom tidak boleh ganda; kolom tak dikenal ditolak. |
 | Kolom wajib | Produk: `sku`, `name`, `category`, `unit`, `price`. Stok awal: semua kolom. |
 | Tipe data | `quantity` bilangan bulat 1–100.000; `price` bilangan bulat ≥ 0 tanpa titik/koma; teks sesuai batas panjang 5.2; teks berawalan `=`, `+`, `@`, atau `-` yang langsung diikuti huruf/angka, atau berisi `<`/`>` ditolak (`- ` dengan spasi boleh). |

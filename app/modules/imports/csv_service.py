@@ -9,6 +9,21 @@ MAX_BYTES = 1024 * 1024  # 1 MB
 MAX_ROWS = 1000
 
 
+def _without_sep_line(text):
+    """Buang baris petunjuk `sep=;` di paling atas (dipasang di file contoh agar Excel memisahkan kolom dengan benar)."""
+    if text[:4].lower() == "sep=":
+        return text.partition("\n")[2]
+    return text
+
+
+def _delimiter(text):
+    """Excel berbahasa Indonesia menyimpan CSV dengan titik koma, Excel lain dengan koma. Pemisahnya dikenali
+    dari baris judul kolom (baris pertama)."""
+    lines = text.splitlines()
+    header = lines[0] if lines else ""
+    return ";" if header.count(";") > header.count(",") else ","
+
+
 def read_csv(upload, expected_headers, required_headers):
     """Baca file unggahan. Mengembalikan (daftar baris, sidik jari SHA-256 file).
 
@@ -32,9 +47,10 @@ def read_csv(upload, expected_headers, required_headers):
     except UnicodeDecodeError:
         raise ValidationFailed("Jenis file belum benar. Di Excel pilih File > Save As, lalu pilih jenis 'CSV UTF-8'.")
     fingerprint = hashlib.sha256(raw).hexdigest()
+    text = _without_sep_line(text)
 
     try:
-        rows = list(csv.reader(io.StringIO(text, newline=""), delimiter=","))
+        rows = list(csv.reader(io.StringIO(text, newline=""), delimiter=_delimiter(text)))
     except csv.Error:
         raise ValidationFailed("File rusak dan tidak bisa dibaca.")
     if not rows:
@@ -52,7 +68,7 @@ def read_csv(upload, expected_headers, required_headers):
         if unknown:
             parts.append("kolom tidak dikenal: " + ", ".join(unknown))
         raise ValidationFailed("Judul kolom di baris pertama tidak sama dengan file contoh (" + "; ".join(parts) + "). "
-                               "Pakai file contoh, dan pastikan pemisah kolomnya koma (,).")
+                               "Pakai file contoh, dan pastikan pemisah kolomnya koma (,) atau titik koma (;).")
 
     result = []
     for number, cells in enumerate(rows[1:], start=2):  # baris 1 = header, seperti di Excel

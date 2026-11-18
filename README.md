@@ -149,7 +149,7 @@ Tidak perlu membuat venv, `pip install`, atau mengubah `.env` lagi. Cukup:
 
 > **Istilah di layar vs di dokumen.** Di layar aplikasi dipakai bahasa sehari-hari yang baku; di README, SD, dan SRS dipakai istilah teknisnya. Padanan: **Batch = Kiriman** (menu *Stok Barang*), Normal = *Aman*, Monitoring = *Perlu Dipantau*, Critical = *Kritis*, Expired = *Kedaluwarsa*, Retur = *Pengembalian* (ke pemasok), penyesuaian stok = *Stok disamakan*, SKU = *Kode produk*. Tabel lengkap ada di awal SD.
 
-**Hanya fitur di bawah ini yang sudah selesai dan diuji (264 tes otomatis):**
+**Hanya fitur di bawah ini yang sudah selesai dan diuji (266 tes otomatis):**
 
 - **Login dan logout**: password disimpan sebagai hash, akun nonaktif ditolak, sesi berakhir setelah 8 jam. **Salah password 5 kali berturut-turut → akun dikunci 15 menit** (Admin bisa membuka dengan mengganti password). **Keluar otomatis setelah 30 menit tanpa aktivitas** (komputer toko dipakai bergantian). Setiap pengguna bisa **mengganti password sendiri** (klik nama di kanan atas); akun baru atau yang direset Admin **wajib** membuat password sendiri saat masuk, jadi Admin tidak tahu password siapa pun.
 - **Tiga peran** dengan hak akses yang dicek di server:
@@ -272,7 +272,7 @@ Prinsipnya **pemisahan tugas**: yang mencatat (Staff) berbeda dengan yang menyet
 - **7 koleksi** (mirip tabel): `master_karyawan` (akun dan peran), `master_product` (produk), `batches`, `stock_movements`, `inspections`, `handling_requests`, `audit_logs`. Tidak ada koleksi lokasi (satu outlet), notifikasi, atau pengaturan.
 
 **Pengujian**
-- **pytest** dan **mongomock** (database tiruan di memori): 264 tes otomatis tanpa koneksi Atlas.
+- **pytest** dan **mongomock** (database tiruan di memori): 266 tes otomatis tanpa koneksi Atlas.
 
 ### G5. Bagaimana tampilan dan server "ngobrol"?
 
@@ -310,7 +310,7 @@ Prinsipnya **pemisahan tugas**: yang mencatat (Staff) berbeda dengan yang menyet
 | **FE Webix** (opsional) | Ada | `public/static/js/*.js` dan `public/static/vendor/webix` |
 | **UI responsive** (opsional) | Ada | Laptop: sidebar + tabel. HP: menu laci + kartu per baris (ukuran dipilih saat halaman dibuka) |
 | **Indexing MongoDB** (opsional) | Ada | `app/indexes.py`: indeks **teks** (cari produk), **majemuk** (FEFO, monitoring, riwayat), dan **unik** (email, SKU, nomor batch, nomor pengajuan, serta pencegah transaksi ganda) |
-| **Unit testing** (opsional) | Ada | Folder `tests/`, dijalankan dengan `py -m pytest -q` (264 tes) |
+| **Unit testing** (opsional) | Ada | Folder `tests/`, dijalankan dengan `py -m pytest -q` (266 tes) |
 
 ### G7. Beberapa istilah yang mungkin ditanyakan
 

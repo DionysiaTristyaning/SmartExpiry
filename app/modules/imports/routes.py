@@ -53,6 +53,8 @@ def confirm_sales():
 def template(kind):
     if kind not in ("products", "stock", "sales"):
         raise NotFound("Template tidak ditemukan.")
-    body = "﻿" + services.template_csv(kind)  # BOM agar Excel membaca UTF-8
+    # BOM agar Excel membaca UTF-8; baris "sep=;" + pemisah titik koma agar kolom langsung terpisah rapi di Excel
+    # berbahasa Indonesia (pemisah bawaannya titik koma). Impor tetap menerima koma maupun titik koma.
+    body = "﻿sep=;\n" + services.template_csv(kind).replace(",", ";")
     return Response(body, mimetype="text/csv",
                     headers={"Content-Disposition": f'attachment; filename="template_{kind}.csv"'})

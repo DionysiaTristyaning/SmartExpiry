@@ -117,9 +117,31 @@ def test_oversized_file_is_rejected(login_as):
 
 def test_templates_download(login_as):
     c = login_as(STAFF)
-    assert c.get("/api/v1/imports/templates/stock").data.decode("utf-8-sig").startswith("sku,quantity,")
-    assert c.get("/api/v1/imports/templates/products").data.decode("utf-8-sig").startswith("sku,name,")
+    # baris pertama "sep=;" membuat Excel langsung memisahkan kolom; judul kolom di baris kedua
+    assert c.get("/api/v1/imports/templates/stock").data.decode("utf-8-sig").startswith("sep=;\nsku;quantity;")
+    assert c.get("/api/v1/imports/templates/products").data.decode("utf-8-sig").startswith("sep=;\nsku;name;")
     assert c.get("/api/v1/imports/templates/other").status_code == 404
+
+
+def test_downloaded_templates_can_be_imported_back(login_as, db):
+    """File contoh (titik koma + baris sep=) harus bisa langsung dipakai kembali untuk impor."""
+    c = login_as(STAFF)
+    stock = c.get("/api/v1/imports/templates/stock").data.decode("utf-8")
+    assert _post(c, "stock", "preview", stock).get_json()["data"]["valid_rows"] == 2
+    sales = c.get("/api/v1/imports/templates/sales").data.decode("utf-8")
+    assert _post(c, "sales", "preview", sales).get_json()["data"]["valid_rows"] == 2
+    products = login_as(SUPERVISOR).get("/api/v1/imports/templates/products").data.decode("utf-8")
+    assert _post(login_as(SUPERVISOR), "products", "preview", products).get_json()["data"]["valid_rows"] == 2
+
+
+def test_import_accepts_semicolon_and_sep_line(login_as, db):
+    """Excel berbahasa Indonesia menyimpan CSV dengan titik koma; koma tetap diterima."""
+    c = login_as(SUPERVISOR)
+    semicolon = "sku;name;category;unit;price;description\nP201;Teh Melati;Minuman;botol;4500;\n"
+    assert _post(c, "products", "preview", semicolon).get_json()["data"]["valid_rows"] == 1
+    with_sep = "sep=;\n" + semicolon
+    assert _post(c, "products", "preview", with_sep).get_json()["data"]["valid_rows"] == 1
+    assert _post(c, "products", "preview", PRODUCTS_OK).get_json()["data"]["valid_rows"] == 2  # koma tetap jalan
 
 
 # ---------- rekap penjualan harian ----------
